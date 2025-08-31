@@ -316,7 +316,7 @@
             document.getElementById('close-settings-button').addEventListener('click', closeSettingsModal);
             personForm.addEventListener('submit', handleFormSubmit);
             document.getElementById('delete-person-button').addEventListener('click', handleDeletePerson);
-            searchBox.addEventListener('input', (e) => render());
+            searchBox.addEventListener('input', () => render());
             document.getElementById('rootPersonId').addEventListener('change', (e) => {
                 settings.rootPersonId = e.target.value;
                 localStorage.setItem('familyTreeSettings', JSON.stringify(settings));
@@ -458,6 +458,7 @@
             const filter = searchBox.value;
             const sortOrder = document.getElementById('sort-order').value;
             personListContainer.innerHTML = '';
+            
             const filteredPeople = people.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || (p.kana || '').toLowerCase().includes(filter.toLowerCase()));
             
             if (filteredPeople.length === 0) {
