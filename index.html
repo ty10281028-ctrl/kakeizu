@@ -348,9 +348,17 @@
             document.getElementById('photoUrl').addEventListener('input', e => {
                 document.getElementById('photoPreview').src = e.target.value || generateAvatar({name: document.getElementById('name').value || '?'});
             });
+
+            // SVG Pan/Zoom Listeners
+            let isPanning = false, startPoint = { x: 0, y: 0 }, viewBox = { x: 0, y: 0, w: 0, h: 0 };
+            treeSvg.addEventListener('mousedown', e => { if (e.target.closest('foreignObject')) return; isPanning = true; startPoint = { x: e.clientX, y: e.clientY }; const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,treeSvg.clientWidth,treeSvg.clientHeight]; viewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]}; });
+            treeSvg.addEventListener('mousemove', e => { if (!isPanning) return; const dx = (startPoint.x - e.clientX) * (viewBox.w / treeSvg.clientWidth); const dy = (startPoint.y - e.clientY) * (viewBox.h / treeSvg.clientHeight); treeSvg.setAttribute('viewBox', `${viewBox.x + dx} ${viewBox.y + dy} ${viewBox.w} ${viewBox.h}`); });
+            treeSvg.addEventListener('mouseup', () => isPanning = false);
+            treeSvg.addEventListener('mouseleave', () => isPanning = false);
+            treeSvg.addEventListener('wheel', e => { e.preventDefault(); const zoomFactor = 1.1; const { clientX, clientY } = e; const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,treeSvg.clientWidth,treeSvg.clientHeight]; let currentViewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]}; const point = svgPoint(clientX, clientY); const newW = e.deltaY > 0 ? currentViewBox.w * zoomFactor : currentViewBox.w / zoomFactor; const newH = e.deltaY > 0 ? currentViewBox.h * zoomFactor : currentViewBox.h / zoomFactor; currentViewBox.x += (point.x-currentViewBox.x)*(1-newW/currentViewBox.w); currentViewBox.y += (point.y-currentViewBox.y)*(1-newH/currentViewBox.h); currentViewBox.w = newW; currentViewBox.h = newH; treeSvg.setAttribute('viewBox', `${currentViewBox.x} ${currentViewBox.y} ${currentViewBox.w} ${currentViewBox.h}`); });
+            function svgPoint(clientX, clientY) { const pt = treeSvg.createSVGPoint(); pt.x = clientX; pt.y = clientY; return pt.matrixTransform(treeSvg.getScreenCTM().inverse()); }
         }
         
-        // Form & Data Handling
         async function handleFormSubmit(e) {
             e.preventDefault();
             const saveButton = document.getElementById('save-person-button');
@@ -364,7 +372,6 @@
                 let photoUrl = document.getElementById('photoUrl').value;
                 if (currentFileUpload) {
                     photoUrl = await uploadPhoto(id, currentFileUpload);
-                    currentFileUpload = null;
                 }
                 
                 const personData = {
@@ -380,6 +387,7 @@
                 };
 
                 await savePerson(personData);
+
                 if (personData.spouseId) {
                     const spouse = findPersonById(personData.spouseId);
                     if (spouse && (spouse.spouseId !== personData.id)) {
@@ -396,18 +404,64 @@
             }
         }
 
-        async function handleDeletePerson() {
-            // ... implementation from previous version
+        async function handleDeletePerson(personId) {
+            const idToDelete = personId || document.getElementById('id').value;
+            if (!idToDelete || !confirm('この人物を本当に削除しますか？関連する情報も更新されます。')) return;
+
+            const personToDelete = findPersonById(idToDelete);
+            if (personToDelete && personToDelete.photoUrl && personToDelete.photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+                try {
+                    const photoRef = storage.refFromURL(personToDelete.photoUrl);
+                    await photoRef.delete();
+                } catch (error) {
+                    console.warn('写真の削除に失敗しました:', error);
+                }
+            }
+            
+            await db.collection('people').doc(idToDelete).delete();
+
+            const updates = people
+                .filter(p => p.fatherId === idToDelete || p.motherId === idToDelete || p.spouseId === idToDelete)
+                .map(p => {
+                    const updated = { ...p };
+                    if (p.fatherId === idToDelete) updated.fatherId = null;
+                    if (p.motherId === idToDelete) updated.motherId = null;
+                    if (p.spouseId === idToDelete) updated.spouseId = null;
+                    return savePerson(updated);
+                });
+            await Promise.all(updates);
+
+            if (settings.rootPersonId === idToDelete) {
+                settings.rootPersonId = people.length > 1 ? people.find(p => p.id !== idToDelete).id : null;
+                localStorage.setItem('familyTreeSettings', JSON.stringify(settings));
+            }
+            
+            closePersonModal();
         }
+
         async function addCategory() {
-            // ... implementation from previous version
+            const input = document.getElementById('new-category-input');
+            const newCategory = input.value.trim();
+            if (!newCategory || familyCategories.includes(newCategory)) {
+                alert(newCategory ? 'そのカテゴリーは既に存在します。' : 'カテゴリー名を入力してください。');
+                return;
+            }
+            const updatedCategories = [...familyCategories, newCategory];
+            await categoriesDoc.set({ list: updatedCategories });
+            input.value = '';
         }
+
         async function handleDeleteCategory(e) {
-            // ... implementation from previous version
+            if (e.target.tagName !== 'BUTTON') return;
+            const categoryToDelete = e.target.dataset.category;
+            if (categoryToDelete && categoryToDelete !== '（未分類）' && confirm(`「${categoryToDelete}」を削除しますか？`)){
+                const updatedCategories = familyCategories.filter(c => c !== categoryToDelete);
+                await categoriesDoc.set({ list: updatedCategories });
+            }
         }
         
-        // Rendering Functions
         function render() {
+            populateSelectOptions();
             const currentView = document.querySelector('#view-toggle button[data-view].bg-slate-200')?.dataset.view || 'list';
             if (currentView === 'tree') renderFamilyTree();
             else if (currentView === 'age') renderAgeList();
@@ -415,11 +469,78 @@
         }
 
         function renderFamilyTree() {
-            // ... implementation from previous version, uses getAgeDisplay
+            const selectedCategory = categoryFilter.value;
+            let personScope = (selectedCategory === 'all') ? people : people.filter(p => p.familyCategory === selectedCategory);
+            let rootPerson = findPersonById(settings.rootPersonId);
+            if (!rootPerson || !personScope.some(p => p.id === rootPerson.id)) {
+                rootPerson = personScope.length > 0 ? personScope[0] : null;
+            }
+            treeContainer.innerHTML = '';
+            if (!rootPerson) {
+                treeContainer.innerHTML = '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" fill="currentColor">表示する人物がいません。</text>';
+                return;
+            }
+            const { nodes, links, bounds } = buildTreeLayout(rootPerson, personScope);
+            links.forEach(link => { /* ... */ });
+            nodes.forEach(node => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('node');
+                g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+                g.addEventListener('click', () => openPersonModal(node.id));
+                const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+                foreignObject.setAttribute('width', nodeSize.width);
+                foreignObject.setAttribute('height', nodeSize.height);
+                const ageDisplay = getAgeDisplay(node.person);
+                const borderColor = node.person.isDeceased ? 'border-slate-400' : 'border-[var(--accent-color)]';
+                const avatarSrc = node.person.photoUrl || generateAvatar(node.person);
+                foreignObject.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full p-2 rounded-lg soft-shadow node-card bg-white dark:bg-slate-800 border-2 ${borderColor} flex items-center space-x-2 cursor-pointer"><img src="${avatarSrc}" class="w-12 h-12 rounded-full object-cover shrink-0"><div class="flex-1 overflow-hidden"><p class="font-bold text-sm truncate">${node.person.name}</p><p class="text-xs ${node.person.isDeceased ? 'text-slate-400' : 'accent-text'} font-semibold">${ageDisplay}</p></div></div>`;
+                g.appendChild(foreignObject);
+                treeContainer.appendChild(g);
+            });
+            // Set viewBox...
         }
-
+        
         function renderPersonList() {
-            // ... implementation from previous version, uses createPersonCard
+            const filter = searchBox.value.toLowerCase();
+            const sortOrder = document.getElementById('sort-order').value;
+            personListContainer.innerHTML = '';
+            const filteredPeople = people.filter(p => p.name.toLowerCase().includes(filter) || (p.kana || '').toLowerCase().includes(filter));
+            if (filteredPeople.length === 0) {
+                personListContainer.innerHTML = `<p class="text-slate-500 col-span-full text-center">該当する人物が見つかりません。</p>`;
+                return;
+            }
+            const groupedByCategory = filteredPeople.reduce((acc, person) => {
+                const category = person.familyCategory || '（未分類）';
+                if (!acc[category]) acc[category] = [];
+                acc[category].push(person);
+                return acc;
+            }, {});
+            const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
+                if (a === '（未分類）') return 1; if (b === '（未分類）') return -1;
+                return a.localeCompare(b, 'ja');
+            });
+            sortedCategories.forEach(category => {
+                const categoryContainer = document.createElement('div');
+                categoryContainer.className = 'col-span-full';
+                categoryContainer.innerHTML = `<h2 class="text-xl font-bold border-b-2 border-[var(--accent-color)] pb-2 mb-4">${category}</h2>`;
+                const gridContainer = document.createElement('div');
+                gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+                const peopleInCategory = groupedByCategory[category];
+                peopleInCategory.sort((a,b) => {
+                    if (sortOrder === 'custom_fuchigami') {
+                        if (a.name === '渕上竜也') return -1; if (b.name === '渕上竜也') return 1;
+                    }
+                    if (!a.birthdate) return 1; if (!b.birthdate) return -1;
+                    switch (sortOrder) {
+                        case 'birthdate_desc': return new Date(b.birthdate) - new Date(a.birthdate);
+                        case 'kana_asc': return (a.kana || a.name).localeCompare(b.kana || b.name, 'ja');
+                        default: return new Date(a.birthdate) - new Date(b.birthdate);
+                    }
+                });
+                peopleInCategory.forEach(person => gridContainer.appendChild(createPersonCard(person)));
+                categoryContainer.appendChild(gridContainer);
+                personListContainer.appendChild(categoryContainer);
+            });
         }
 
         function renderAgeList() {
@@ -454,7 +575,6 @@
             render();
         }
 
-        // Helper Functions
         function getAgeDisplay(person) {
             if (person.isDeceased) {
                 const ageIfAlive = calculateAge(person.birthdate, null);
@@ -505,12 +625,14 @@
             const fileName = `photo_${id}_${Date.now()}`;
             const storageRef = storage.ref(`photos/${fileName}`);
             const uploadTask = storageRef.put(file);
-
             return new Promise((resolve, reject) => {
                 uploadTask.on('state_changed', 
                     snapshot => { progress.value = (snapshot.bytesTransferred / snapshot.totalBytes) * 100; }, 
                     reject,
-                    () => { uploadTask.snapshot.ref.getDownloadURL().then(resolve); }
+                    () => { uploadTask.snapshot.ref.getDownloadURL().then(url => {
+                        progress.classList.add('hidden');
+                        resolve(url);
+                    }); }
                 );
             });
         }
@@ -525,10 +647,67 @@
             return Math.max(0, age);
         }
 
+        // Other helper functions...
         function findPersonById(id) { return people.find(p => p.id === id); }
-        function openPersonModal(personId = null) { /* ... */ }
-        
-        // ... all other helper functions ...
+        function openPersonModal(personId = null) { 
+            personForm.reset();
+            currentFileUpload = null;
+            document.getElementById('uploadProgress').classList.add('hidden');
+            document.getElementById('death-date-container').classList.add('hidden');
+            populateSelectOptions(personId);
+            populateCategorySelect(document.getElementById('familyCategory'));
+            if (personId) {
+                const person = findPersonById(personId);
+                if (person) {
+                    document.getElementById('id').value = person.id;
+                    document.getElementById('name').value = person.name;
+                    document.getElementById('kana').value = person.kana || '';
+                    createDateSelectors('birthdate-container', person.birthdate, true);
+                    document.getElementById('gender').value = person.gender || '不明';
+                    document.getElementById('fatherId').value = person.fatherId || '';
+                    document.getElementById('motherId').value = person.motherId || '';
+                    document.getElementById('spouseId').value = person.spouseId || '';
+                    document.getElementById('isDeceased').checked = person.isDeceased || false;
+                    if (person.isDeceased) {
+                        createDateSelectors('deathdate-container-selectors', person.deathdate, false);
+                        document.getElementById('death-date-container').classList.remove('hidden');
+                    } else {
+                        createDateSelectors('deathdate-container-selectors', null, false);
+                    }
+                    document.getElementById('photoUrl').value = person.photoUrl || '';
+                    document.getElementById('photoPreview').src = person.photoUrl || generateAvatar(person);
+                    document.getElementById('familyCategory').value = person.familyCategory || '（未分類）';
+                    document.getElementById('address').value = person.address || '';
+                    document.getElementById('memo').value = person.memo || '';
+                    document.getElementById('company').value = person.company || '';
+                    document.getElementById('comment').value = person.comment || '';
+                    createDateSelectors('weddingDate-container', person.weddingDate, false);
+                    document.getElementById('delete-person-button').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('id').value = '';
+                createDateSelectors('birthdate-container', null, true);
+                createDateSelectors('deathdate-container-selectors', null, false);
+                createDateSelectors('weddingDate-container', null, false);
+                document.getElementById('delete-person-button').classList.add('hidden');
+                document.getElementById('photoPreview').src = generateAvatar({name: '?'});
+            }
+            personModal.classList.add('flex');
+            personModal.classList.remove('hidden');
+        }
+        function createDateSelectors(containerId, initialDate, isRequired = false) { /* ... */ }
+        function getDateFromSelectors(containerId) { /* ... */ }
+        function populateSelectOptions(currentPersonId = null) { /* ... */ }
+        function populateCategorySelect(selectElement) { /* ... */ }
+        function renderCategoryFilter() { /* ... */ }
+        function closePersonModal() { personModal.classList.add('hidden'); personModal.classList.remove('flex'); }
+        function openSettingsModal() { /* ... */ }
+        function closeSettingsModal() { /* ... */ }
+        function renderCategoryManager() { /* ... */ }
+        function applyTheme() { document.documentElement.classList.toggle('dark', settings.theme === 'dark'); }
+        function applySettings() { applyTheme(); const themeRadio = document.querySelector(`input[name="theme"][value="${settings.theme}"]`); if (themeRadio) themeRadio.checked = true; }
+        function generateAvatar(person) { /* ... */ }
+        function buildTreeLayout(rootPerson, personData) { /* ... */ }
 
         init();
     });
