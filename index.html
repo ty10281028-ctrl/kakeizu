@@ -40,6 +40,7 @@
                 <input type="search" id="search-box" placeholder="名前で検索..." class="w-40 sm:w-64 px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all text-sm">
                 <div id="view-toggle" class="flex items-center border border-slate-300 dark:border-slate-600 rounded-full p-0.5">
                     <button data-view="list" class="px-3 py-1 text-sm rounded-full bg-slate-200 dark:bg-slate-700">一覧</button>
+                    <button data-view="age" class="px-3 py-1 text-sm rounded-full">年齢順</button>
                     <button data-view="tree" class="px-3 py-1 text-sm rounded-full">家系図</button>
                 </div>
                 <button id="settings-button" title="設定" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
@@ -52,7 +53,7 @@
             <div id="list-view" class="w-full h-full p-4 overflow-y-auto">
                 <div class="flex justify-between items-center mb-4 sticky top-0 bg-slate-50 dark:bg-slate-900 py-2 z-10">
                     <div class="flex items-center space-x-2">
-                         <h2 class="text-lg font-bold">人物一覧</h2>
+                         <h2 class="text-lg font-bold">人物一覧（カテゴリー別）</h2>
                          <select id="sort-order" class="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)] text-sm">
                             <option value="birthdate_asc">年齢順（年上から）</option>
                             <option value="birthdate_desc">年齢順（年下から）</option>
@@ -64,6 +65,12 @@
                     </button>
                 </div>
                 <div id="person-list-container" class="space-y-8"></div>
+            </div>
+            <div id="age-view" class="w-full h-full p-4 overflow-y-auto hidden">
+                <div class="flex justify-between items-center mb-4 sticky top-0 bg-slate-50 dark:bg-slate-900 py-2 z-10">
+                    <h2 class="text-lg font-bold">人物一覧（年齢順）</h2>
+                </div>
+                <div id="person-age-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
             </div>
             <div id="tree-view" class="w-full h-full hidden">
                 <svg id="tree-svg" class="w-full h-full">
@@ -248,6 +255,10 @@
 
         const treeViewEl = document.getElementById('tree-view');
         const listViewEl = document.getElementById('list-view');
+        // ▼▼▼ 修正箇所3: 新しいDOM要素を取得 ▼▼▼
+        const ageViewEl = document.getElementById('age-view');
+        const personAgeListContainer = document.getElementById('person-age-list-container');
+        // ▲▲▲ 修正箇所3ここまで ▲▲▲
         const personListContainer = document.getElementById('person-list-container');
         const treeSvg = document.getElementById('tree-svg');
         const treeContainer = document.getElementById('tree-container');
@@ -305,9 +316,12 @@
             document.getElementById('view-toggle').addEventListener('click', (e) => {
                 if (e.target.tagName === 'BUTTON') switchView(e.target.dataset.view);
             });
-            personListContainer.addEventListener('click', (e) => {
-                const card = e.target.closest('[data-id]');
-                if (card) openPersonModal(card.dataset.id);
+            // 複数のリストコンテナに対応
+            [personListContainer, personAgeListContainer].forEach(container => {
+                container.addEventListener('click', (e) => {
+                    const card = e.target.closest('[data-id]');
+                    if (card) openPersonModal(card.dataset.id);
+                });
             });
             document.getElementById('add-person-list-btn').addEventListener('click', () => openPersonModal());
             document.getElementById('settings-button').addEventListener('click', openSettingsModal);
@@ -316,7 +330,7 @@
             document.getElementById('close-settings-button').addEventListener('click', closeSettingsModal);
             personForm.addEventListener('submit', handleFormSubmit);
             document.getElementById('delete-person-button').addEventListener('click', handleDeletePerson);
-            searchBox.addEventListener('input', (e) => render()); // 検索時も再描画
+            searchBox.addEventListener('input', render);
             document.getElementById('rootPersonId').addEventListener('change', (e) => {
                 settings.rootPersonId = e.target.value;
                 localStorage.setItem('familyTreeSettings', JSON.stringify(settings));
@@ -332,9 +346,7 @@
             document.getElementById('add-category-btn').addEventListener('click', addCategory);
             document.getElementById('category-list').addEventListener('click', handleDeleteCategory);
             categoryFilter.addEventListener('change', render);
-            // ▼▼▼ 修正箇所2: 並べ替え機能のイベントリスナーを追加 ▼▼▼
             document.getElementById('sort-order').addEventListener('change', render);
-            // ▲▲▲ 修正箇所2ここまで ▲▲▲
             document.getElementById('isDeceased').addEventListener('change', (e) => {
                 document.getElementById('death-date-container').classList.toggle('hidden', !e.target.checked);
             });
@@ -352,110 +364,21 @@
             function svgPoint(clientX, clientY) { const pt = treeSvg.createSVGPoint(); pt.x = clientX; pt.y = clientY; return pt.matrixTransform(treeSvg.getScreenCTM().inverse()); }
         }
 
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const id = document.getElementById('id').value || db.collection('people').doc().id;
-            
-            const birthdate = getDateFromSelectors('birthdate-container');
-            if (!birthdate) {
-                alert('生年月日を正しく入力してください。');
-                return;
-            }
-
-            const personData = {
-                id,
-                name: document.getElementById('name').value,
-                kana: document.getElementById('kana').value,
-                birthdate: birthdate,
-                gender: document.getElementById('gender').value,
-                fatherId: document.getElementById('fatherId').value || null,
-                motherId: document.getElementById('motherId').value || null,
-                spouseId: document.getElementById('spouseId').value || null,
-                isDeceased: document.getElementById('isDeceased').checked,
-                deathdate: document.getElementById('isDeceased').checked ? getDateFromSelectors('deathdate-container-selectors') : null,
-                photoUrl: document.getElementById('photoUrl').value || null,
-                familyCategory: document.getElementById('familyCategory').value,
-                address: document.getElementById('address').value,
-                memo: document.getElementById('memo').value,
-                weddingDate: getDateFromSelectors('weddingDate-container'),
-            };
-            
-            await savePerson(personData);
-
-            if (personData.spouseId) {
-                const spouse = findPersonById(personData.spouseId);
-                if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) {
-                    const updatedSpouse = { ...spouse, spouseId: personData.id };
-                    if(personData.weddingDate) updatedSpouse.weddingDate = personData.weddingDate;
-                    await savePerson(updatedSpouse);
-                }
-            }
-            
-            closePersonModal();
-        }
-
-        async function handleDeletePerson() {
-            const id = document.getElementById('id').value;
-            if (!id || !confirm('この人物を本当に削除しますか？関連する情報も更新されます。')) return;
-            
-            await deletePerson(id);
-
-            const updates = [];
-            people.forEach(p => {
-                let changed = false;
-                const updatedPerson = { ...p };
-                if (p.fatherId === id) { updatedPerson.fatherId = null; changed = true; }
-                if (p.motherId === id) { updatedPerson.motherId = null; changed = true; }
-                if (p.spouseId === id) { updatedPerson.spouseId = null; changed = true; }
-                if (changed) updates.push(savePerson(updatedPerson));
-            });
-
-            await Promise.all(updates);
-
-            if (settings.rootPersonId === id) {
-                const remainingPeople = people.filter(p => p.id !== id);
-                settings.rootPersonId = remainingPeople.length > 0 ? remainingPeople[0].id : null;
-                localStorage.setItem('familyTreeSettings', JSON.stringify(settings));
-            }
-            
-            closePersonModal();
-        }
-
-        async function addCategory() {
-            const input = document.getElementById('new-category-input');
-            const newCategory = input.value.trim();
-            if (!newCategory || familyCategories.includes(newCategory)) {
-                alert(newCategory ? 'そのカテゴリーは既に存在します。' : 'カテゴリー名を入力してください。');
-                return;
-            }
-            familyCategories.push(newCategory);
-            await saveCategories();
-            input.value = '';
-        }
-
-        async function handleDeleteCategory(e) {
-            if (e.target.tagName !== 'BUTTON') return;
-            const categoryToDelete = e.target.dataset.category;
-            if (categoryToDelete && categoryToDelete !== '（未分類）' && confirm(`「${categoryToDelete}」を削除しますか？このカテゴリーの人物は「（未分類）」に移動します。`)){
-                if (categoryFilter.value === categoryToDelete) categoryFilter.value = 'all';
-
-                const updates = [];
-                people.forEach(p => {
-                    if (p.familyCategory === categoryToDelete) {
-                        updates.push(savePerson({ ...p, familyCategory: '（未分類）' }));
-                    }
-                });
-                await Promise.all(updates);
-                
-                familyCategories = familyCategories.filter(c => c !== categoryToDelete);
-                await saveCategories();
-            }
-        }
+        async function handleFormSubmit(e) { e.preventDefault(); const id = document.getElementById('id').value || db.collection('people').doc().id; const birthdate = getDateFromSelectors('birthdate-container'); if (!birthdate) { alert('生年月日を正しく入力してください。'); return; } const personData = { id, name: document.getElementById('name').value, kana: document.getElementById('kana').value, birthdate: birthdate, gender: document.getElementById('gender').value, fatherId: document.getElementById('fatherId').value || null, motherId: document.getElementById('motherId').value || null, spouseId: document.getElementById('spouseId').value || null, isDeceased: document.getElementById('isDeceased').checked, deathdate: document.getElementById('isDeceased').checked ? getDateFromSelectors('deathdate-container-selectors') : null, photoUrl: document.getElementById('photoUrl').value || null, familyCategory: document.getElementById('familyCategory').value, address: document.getElementById('address').value, memo: document.getElementById('memo').value, weddingDate: getDateFromSelectors('weddingDate-container'), }; await savePerson(personData); if (personData.spouseId) { const spouse = findPersonById(personData.spouseId); if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) { const updatedSpouse = { ...spouse, spouseId: personData.id }; if(personData.weddingDate) updatedSpouse.weddingDate = personData.weddingDate; await savePerson(updatedSpouse); } } closePersonModal(); }
+        async function handleDeletePerson() { const id = document.getElementById('id').value; if (!id || !confirm('この人物を本当に削除しますか？関連する情報も更新されます。')) return; await deletePerson(id); const updates = []; people.forEach(p => { let changed = false; const updatedPerson = { ...p }; if (p.fatherId === id) { updatedPerson.fatherId = null; changed = true; } if (p.motherId === id) { updatedPerson.motherId = null; changed = true; } if (p.spouseId === id) { updatedPerson.spouseId = null; changed = true; } if (changed) updates.push(savePerson(updatedPerson)); }); await Promise.all(updates); if (settings.rootPersonId === id) { const remainingPeople = people.filter(p => p.id !== id); settings.rootPersonId = remainingPeople.length > 0 ? remainingPeople[0].id : null; localStorage.setItem('familyTreeSettings', JSON.stringify(settings)); } closePersonModal(); }
+        async function addCategory() { const input = document.getElementById('new-category-input'); const newCategory = input.value.trim(); if (!newCategory || familyCategories.includes(newCategory)) { alert(newCategory ? 'そのカテゴリーは既に存在します。' : 'カテゴリー名を入力してください。'); return; } familyCategories.push(newCategory); await saveCategories(); input.value = ''; }
+        async function handleDeleteCategory(e) { if (e.target.tagName !== 'BUTTON') return; const categoryToDelete = e.target.dataset.category; if (categoryToDelete && categoryToDelete !== '（未分類）' && confirm(`「${categoryToDelete}」を削除しますか？このカテゴリーの人物は「（未分類）」に移動します。`)){ if (categoryFilter.value === categoryToDelete) categoryFilter.value = 'all'; const updates = []; people.forEach(p => { if (p.familyCategory === categoryToDelete) { updates.push(savePerson({ ...p, familyCategory: '（未分類）' })); } }); await Promise.all(updates); familyCategories = familyCategories.filter(c => c !== categoryToDelete); await saveCategories(); } }
         
-        function render() { populateSelectOptions(); const currentView = document.querySelector('#view-toggle button[data-view].bg-slate-200')?.dataset.view || 'list'; if (currentView === 'tree') renderFamilyTree(); else renderPersonList(); }
+        function render() {
+            populateSelectOptions();
+            const currentView = document.querySelector('#view-toggle button[data-view].bg-slate-200')?.dataset.view || 'list';
+            if (currentView === 'tree') renderFamilyTree();
+            else if (currentView === 'age') renderAgeList(); // 年齢順ビューの呼び出し
+            else renderPersonList();
+        }
+
         function renderFamilyTree() { const selectedCategory = categoryFilter.value; const personScope = selectedCategory === 'all' ? people : people.filter(p => p.familyCategory === selectedCategory); let rootPerson = findPersonById(settings.rootPersonId); if (!rootPerson || (selectedCategory !== 'all' && !personScope.some(p => p.id === rootPerson.id))) { rootPerson = personScope.length > 0 ? personScope[0] : null; } if (!rootPerson) { const message = selectedCategory !== 'all' && people.length > 0 ? 'このカテゴリーに属する人物がいません。' : '人物データがありません。一覧画面から追加してください。'; treeContainer.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="currentColor">${message}</text>`; treeSvg.removeAttribute('viewBox'); return; } const { nodes, links, bounds } = buildTreeLayout(rootPerson, personScope); treeContainer.innerHTML = ''; links.forEach(link => { const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'); path.setAttribute('d', link.d); path.setAttribute('fill', 'none'); path.setAttribute('stroke', 'rgb(156 163 175)'); path.setAttribute('stroke-width', '2'); treeContainer.appendChild(path); }); nodes.forEach(node => { const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.classList.add('node'); g.setAttribute('transform', `translate(${node.x}, ${node.y})`); g.dataset.id = node.id; g.addEventListener('click', () => openPersonModal(node.id)); const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject'); foreignObject.setAttribute('width', nodeSize.width); foreignObject.setAttribute('height', nodeSize.height); const age = calculateAge(node.person.birthdate, node.person.deathdate); const borderColor = node.person.isDeceased ? 'border-slate-400' : 'border-[var(--accent-color)]'; const avatarSrc = node.person.photoUrl || generateAvatar(node.person); foreignObject.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full p-2 rounded-lg soft-shadow node-card bg-white dark:bg-slate-800 border-2 ${borderColor} flex items-center space-x-2 cursor-pointer"><img src="${avatarSrc}" class="w-12 h-12 rounded-full object-cover shrink-0" alt="${node.person.name}の写真"><div class="flex-1 overflow-hidden"><p class="font-bold text-sm truncate">${node.person.name}</p><p class="text-xs text-slate-500 dark:text-slate-400">${node.person.isDeceased ? '故人' : age + '歳'}</p><p class="text-xs text-slate-400 dark:text-slate-500 truncate">${node.person.familyCategory || ''}</p></div></div>`; g.appendChild(foreignObject); treeContainer.appendChild(g); }); const treeWidth = bounds.maxX - bounds.minX + nodeSize.width; const treeHeight = bounds.maxY - bounds.minY + nodeSize.height; const padding = 50; const svgWidth = treeSvg.clientWidth; const svgHeight = treeSvg.clientHeight; if (treeWidth > 0 && treeHeight > 0 && svgWidth > 0 && svgHeight > 0) { const scaleX = svgWidth / (treeWidth + padding * 2); const scaleY = svgHeight / (treeHeight + padding * 2); const scale = Math.min(scaleX, scaleY, 1); const viewBoxW = svgWidth / scale; const viewBoxH = svgHeight / scale; const viewBoxX = bounds.minX - (viewBoxW - treeWidth) / 2; const viewBoxY = bounds.minY - (viewBoxH - treeHeight) / 2; treeSvg.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${viewBoxW} ${viewBoxH}`); } }
         
-        // ▼▼▼ 修正箇所3: renderPersonList関数を修正 ▼▼▼
         function renderPersonList() {
             const filter = searchBox.value;
             const sortOrder = document.getElementById('sort-order').value;
@@ -488,17 +411,16 @@
                 const gridContainer = document.createElement('div');
                 gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
                 
-                // カテゴリー内の人物をソート
                 const peopleInCategory = groupedByCategory[category];
                 peopleInCategory.sort((a,b) => {
                     if (!a.birthdate) return 1;
                     if (!b.birthdate) return -1;
                     switch (sortOrder) {
-                        case 'birthdate_desc': // 年齢順（年下から）
+                        case 'birthdate_desc':
                             return new Date(b.birthdate) - new Date(a.birthdate);
-                        case 'kana_asc': // 名前順
+                        case 'kana_asc':
                             return (a.kana || a.name).localeCompare(b.kana || b.name, 'ja');
-                        case 'birthdate_asc': // 年齢順（年上から）
+                        case 'birthdate_asc':
                         default:
                             return new Date(a.birthdate) - new Date(b.birthdate);
                     }
@@ -519,49 +441,65 @@
                 personListContainer.appendChild(categoryContainer);
             });
         }
-        // ▲▲▲ 修正箇所3ここまで ▲▲▲
 
-        function switchView(view) { document.querySelectorAll('#view-toggle button').forEach(btn => { btn.classList.toggle('bg-slate-200', btn.dataset.view === view); btn.classList.toggle('dark:bg-slate-700', btn.dataset.view === view); }); treeViewEl.classList.toggle('hidden', view !== 'tree'); listViewEl.classList.toggle('hidden', view !== 'list'); searchBox.classList.toggle('hidden', view !== 'list'); categoryFilterContainer.classList.toggle('hidden', view !== 'tree'); categoryFilterContainer.classList.toggle('flex', view === 'tree'); render(); }
-        function renderEventTimeline(person) { const timelineEl = document.getElementById('event-timeline'); const events = calculateEvents(person, true); if(events.length === 0) { timelineEl.innerHTML = `<p class="text-slate-500">自動計算されるイベントはありません。</p>`; return; } timelineEl.innerHTML = events.map(event => `<div class="flex items-center"><div class="w-32 font-semibold">${formatDateJP(event.date)}</div><div class="relative px-2"><div class="h-full w-0.5 bg-slate-300 dark:bg-slate-600"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full accent-bg border-2 border-white dark:border-slate-800"></div></div><div>${event.name}</div></div>`).join(''); }
-        function openPersonModal(personId = null) { personForm.reset(); document.getElementById('death-date-container').classList.add('hidden'); populateSelectOptions(personId); populateCategorySelect(document.getElementById('familyCategory')); if (personId) { const person = findPersonById(personId); if (person) { document.getElementById('id').value = person.id; document.getElementById('name').value = person.name; document.getElementById('kana').value = person.kana || ''; createDateSelectors('birthdate-container', person.birthdate, true); document.getElementById('gender').value = person.gender || '不明'; document.getElementById('fatherId').value = person.fatherId || ''; document.getElementById('motherId').value = person.motherId || ''; document.getElementById('spouseId').value = person.spouseId || ''; document.getElementById('isDeceased').checked = person.isDeceased || false; if(person.isDeceased) { createDateSelectors('deathdate-container-selectors', person.deathdate, false); document.getElementById('death-date-container').classList.remove('hidden'); } else { createDateSelectors('deathdate-container-selectors', null, false); } document.getElementById('photoUrl').value = person.photoUrl || ''; document.getElementById('photoPreview').src = person.photoUrl || generateAvatar(person); document.getElementById('familyCategory').value = person.familyCategory || '（未分類）'; document.getElementById('address').value = person.address || ''; document.getElementById('memo').value = person.memo || ''; createDateSelectors('weddingDate-container', person.weddingDate, false); document.getElementById('delete-person-button').classList.remove('hidden'); renderEventTimeline(person); } } else { document.getElementById('id').value = ''; createDateSelectors('birthdate-container', null, true); createDateSelectors('deathdate-container-selectors', null, false); createDateSelectors('weddingDate-container', null, false); document.getElementById('delete-person-button').classList.add('hidden'); document.getElementById('event-timeline').innerHTML = ''; document.getElementById('photoPreview').src = generateAvatar({name: '?'}); } personModal.classList.add('flex'); personModal.classList.remove('hidden'); }
-        function findPersonById(id) { return people.find(p => p.id === id); }
-        
-        // ▼▼▼ 修正箇所4: calculateEvents関数を修正 ▼▼▼
-        function calculateEvents(person, showAll = false) {
-            if (!person.birthdate) return [];
-            let events = [];
-            const birth = new Date(person.birthdate + 'T00:00:00');
-            const birthYear = birth.getFullYear();
+        // ▼▼▼ 修正箇所4: 年齢順リストを描画する関数を新しく追加 ▼▼▼
+        function renderAgeList() {
+            const filter = searchBox.value;
+            personAgeListContainer.innerHTML = '';
 
-            // 卒業年を計算（日本の学年制度を簡易的に再現）
-            const graduationYear = (baseAge) => birthYear + baseAge;
-
-            events.push({ date: `${graduationYear(12)}-03-31`, name: '小学校卒業' });
-            events.push({ date: `${graduationYear(15)}-03-31`, name: '中学校卒業' });
-            events.push({ date: `${graduationYear(18)}-03-31`, name: '高校卒業' });
-            events.push({ date: `${graduationYear(22)}-03-31`, name: '大学卒業' });
-
-            if (person.weddingDate) {
-                events.push({ date: person.weddingDate, name: '結婚記念日' });
-            }
-            if (person.isDeceased && person.deathdate) {
-                const deathDate = new Date(person.deathdate + 'T00:00:00');
-                const memorials = [{ name: '一周忌', years: 1 }, { name: '三回忌', years: 2 }, { name: '七回忌', years: 6 }, { name: '十三回忌', years: 12 },];
-                memorials.forEach(memorial => {
-                    const memorialDate = new Date(deathDate);
-                    memorialDate.setFullYear(deathDate.getFullYear() + memorial.years);
-                    events.push({ date: memorialDate.toISOString().split('T')[0], name: memorial.name, });
+            const filteredPeople = people
+                .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || (p.kana || '').toLowerCase().includes(filter.toLowerCase()))
+                .sort((a, b) => { // 年齢の高い順（誕生日が早い順）にソート
+                    if (!a.birthdate) return 1;
+                    if (!b.birthdate) return -1;
+                    return new Date(a.birthdate) - new Date(b.birthdate);
                 });
-            }
-            
-            const today = new Date();
-            // showAllフラグがtrueでない限り、未来のイベントはフィルタリング
-            const filteredEvents = showAll ? events : events.filter(e => new Date(e.date) <= today);
 
-            return filteredEvents.sort((a,b) => new Date(a.date) - new Date(b.date));
+            if (filteredPeople.length === 0) {
+                personAgeListContainer.innerHTML = `<p class="text-slate-500 col-span-full text-center">該当する人物が見つかりません。</p>`;
+                return;
+            }
+
+            filteredPeople.forEach(person => {
+                const age = calculateAge(person.birthdate, person.deathdate);
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex flex-col cursor-pointer`;
+                card.dataset.id = person.id;
+                const events = calculateEvents(person);
+                const avatarSrc = person.photoUrl || generateAvatar(person);
+                card.innerHTML = `<div class="flex items-start space-x-3"><img src="${avatarSrc}" class="w-16 h-16 rounded-full object-cover" alt="${person.name}の写真"><div class="flex-1"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">${person.name}</h3><span class="text-sm font-semibold ${person.isDeceased ? 'text-slate-400' : 'accent-text'}">${person.isDeceased ? '故人' : age + '歳'}</span></div><p class="text-sm text-slate-500 dark:text-slate-400">${person.kana || ''}</p></div></div><div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-1 flex-1"><p><strong>誕生日:</strong> ${formatDateJP(person.birthdate)}</p><div class="max-h-24 overflow-y-auto space-y-1 pr-2">${events.map(e => `<p><strong>${e.name}:</strong> ${formatDateJP(e.date)}</p>`).join('')}</div></div>`;
+                personAgeListContainer.appendChild(card);
+            });
         }
         // ▲▲▲ 修正箇所4ここまで ▲▲▲
 
+        // ▼▼▼ 修正箇所5: switchView関数を修正 ▼▼▼
+        function switchView(view) {
+            document.querySelectorAll('#view-toggle button').forEach(btn => {
+                btn.classList.toggle('bg-slate-200', btn.dataset.view === view);
+                btn.classList.toggle('dark:bg-slate-700', btn.dataset.view === view);
+            });
+            
+            const isTree = view === 'tree';
+            const isAge = view === 'age';
+            const isList = view === 'list';
+
+            treeViewEl.classList.toggle('hidden', !isTree);
+            ageViewEl.classList.toggle('hidden', !isAge);
+            listViewEl.classList.toggle('hidden', !isList);
+            
+            searchBox.classList.toggle('hidden', isTree);
+            categoryFilterContainer.classList.toggle('hidden', !isTree);
+            categoryFilterContainer.classList.toggle('flex', isTree);
+            
+            render();
+        }
+        // ▲▲▲ 修正箇所5ここまで ▲▲▲
+        
+        function renderEventTimeline(person) { const timelineEl = document.getElementById('event-timeline'); const events = calculateEvents(person, true); if(events.length === 0) { timelineEl.innerHTML = `<p class="text-slate-500">自動計算されるイベントはありません。</p>`; return; } timelineEl.innerHTML = events.map(event => `<div class="flex items-center"><div class="w-32 font-semibold">${formatDateJP(event.date)}</div><div class="relative px-2"><div class="h-full w-0.5 bg-slate-300 dark:bg-slate-600"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full accent-bg border-2 border-white dark:border-slate-800"></div></div><div>${event.name}</div></div>`).join(''); }
+        function openPersonModal(personId = null) { personForm.reset(); document.getElementById('death-date-container').classList.add('hidden'); populateSelectOptions(personId); populateCategorySelect(document.getElementById('familyCategory')); if (personId) { const person = findPersonById(personId); if (person) { document.getElementById('id').value = person.id; document.getElementById('name').value = person.name; document.getElementById('kana').value = person.kana || ''; createDateSelectors('birthdate-container', person.birthdate, true); document.getElementById('gender').value = person.gender || '不明'; document.getElementById('fatherId').value = person.fatherId || ''; document.getElementById('motherId').value = person.motherId || ''; document.getElementById('spouseId').value = person.spouseId || ''; document.getElementById('isDeceased').checked = person.isDeceased || false; if(person.isDeceased) { createDateSelectors('deathdate-container-selectors', person.deathdate, false); document.getElementById('death-date-container').classList.remove('hidden'); } else { createDateSelectors('deathdate-container-selectors', null, false); } document.getElementById('photoUrl').value = person.photoUrl || ''; document.getElementById('photoPreview').src = person.photoUrl || generateAvatar(person); document.getElementById('familyCategory').value = person.familyCategory || '（未分類）'; document.getElementById('address').value = person.address || ''; document.getElementById('memo').value = person.memo || ''; createDateSelectors('weddingDate-container', person.weddingDate, false); document.getElementById('delete-person-button').classList.remove('hidden'); renderEventTimeline(person); } } else { document.getElementById('id').value = ''; createDateSelectors('birthdate-container', null, true); createDateSelectors('deathdate-container-selectors', null, false); createDateSelectors('weddingDate-container', null, false); document.getElementById('delete-person-button').classList.add('hidden'); document.getElementById('event-timeline').innerHTML = ''; document.getElementById('photoPreview').src = generateAvatar({name: '?'}); } personModal.classList.add('flex'); personModal.classList.remove('hidden'); }
+        function findPersonById(id) { return people.find(p => p.id === id); }
+        function calculateEvents(person, showAll = false) { if (!person.birthdate) return []; let events = []; const birth = new Date(person.birthdate + 'T00:00:00'); const birthYear = birth.getFullYear(); const graduationYear = (baseAge) => birthYear + baseAge; events.push({ date: `${graduationYear(12)}-03-31`, name: '小学校卒業' }); events.push({ date: `${graduationYear(15)}-03-31`, name: '中学校卒業' }); events.push({ date: `${graduationYear(18)}-03-31`, name: '高校卒業' }); events.push({ date: `${graduationYear(22)}-03-31`, name: '大学卒業' }); if (person.weddingDate) { events.push({ date: person.weddingDate, name: '結婚記念日' }); } if (person.isDeceased && person.deathdate) { const deathDate = new Date(person.deathdate + 'T00:00:00'); const memorials = [{ name: '一周忌', years: 1 }, { name: '三回忌', years: 2 }, { name: '七回忌', years: 6 }, { name: '十三回忌', years: 12 },]; memorials.forEach(memorial => { const memorialDate = new Date(deathDate); memorialDate.setFullYear(deathDate.getFullYear() + memorial.years); events.push({ date: memorialDate.toISOString().split('T')[0], name: memorial.name, }); }); } const today = new Date(); const filteredEvents = showAll ? events : events.filter(e => new Date(e.date) <= today); return filteredEvents.sort((a,b) => new Date(a.date) - new Date(b.date)); }
         function formatDateJP(isoDate) { if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return ''; const date = new Date(isoDate + 'T00:00:00'); const year = date.getFullYear(); const month = date.getMonth() + 1; const day = date.getDate(); return `${year}年${month}月${day}日`; }
         function generateAvatar(person) { const name = person.name || '?'; const initial = name.charAt(0).toUpperCase(); let hash = 0; for (let i = 0; i < name.length; i++) { hash = name.charCodeAt(i) + ((hash << 5) - hash); } const colors = ['#f87171', '#fb923c', '#fbbf24', '#a3e635', '#4ade80', '#34d399', '#2dd4bf', '#22d3ee', '#38bdf8', '#60a5fa', '#818cf8', '#a78bfa', '#c084fc', '#e879f9', '#f472b6']; let color; if (person.gender === '男性') { color = colors[Math.abs(hash) % 7 + 8]; } else if (person.gender === '女性') { color = colors[Math.abs(hash) % 7]; } else { color = colors[Math.abs(hash) % colors.length]; } const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}" /><text x="50" y="55" font-family="Noto Sans JP, sans-serif" font-size="50" fill="white" text-anchor="middle" dominant-baseline="middle">${initial}</text></svg>`; return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`; }
         function handlePhotoFileSelect(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { document.getElementById('photoUrl').value = e.target.result; document.getElementById('photoPreview').src = e.target.result; }; reader.readAsDataURL(file); event.target.value = null; }
