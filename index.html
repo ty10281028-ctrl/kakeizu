@@ -45,7 +45,6 @@
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
     <div id="app" class="h-screen w-screen flex flex-col">
-        <!-- Header -->
         <header class="bg-white dark:bg-slate-800 soft-shadow z-10 p-2 sm:p-4 flex items-center justify-between">
             <h1 class="text-xl sm:text-2xl font-bold text-slate-700 dark:text-slate-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block -mt-1 mr-2 accent-text"><path d="M3 6v12"></path><path d="M18 6v12"></path><path d="M10.5 6h3"></path><path d="M10.5 18h3"></path><path d="M6 12h12"></path></svg>
@@ -53,44 +52,40 @@
             </h1>
             <div class="flex items-center space-x-2 sm:space-x-4">
                  <div id="category-filter-container" class="hidden items-center space-x-2">
-                    <label for="category-filter" class="text-sm font-medium hidden sm:block">表示:</label>
-                    <select id="category-filter" class="w-32 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)] text-sm">
-                        <!-- Options will be populated by JS -->
-                    </select>
-                </div>
-                <input type="search" id="search-box" placeholder="名前で検索..." class="hidden md:block w-40 sm:w-64 px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all text-sm">
+                     <label for="category-filter" class="text-sm font-medium hidden sm:block">表示:</label>
+                     <select id="category-filter" class="w-32 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)] text-sm">
+                         </select>
+                 </div>
+                <input type="search" id="search-box" placeholder="名前で検索..." class="w-40 sm:w-64 px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all text-sm">
                 <div id="view-toggle" class="flex items-center border border-slate-300 dark:border-slate-600 rounded-full p-0.5">
-                    <button data-view="tree" class="px-3 py-1 text-sm rounded-full bg-slate-200 dark:bg-slate-700">家系図</button>
-                    <button data-view="list" class="px-3 py-1 text-sm rounded-full">一覧</button>
+                    <button data-view="list" class="px-3 py-1 text-sm rounded-full bg-slate-200 dark:bg-slate-700">一覧</button>
+                    <button data-view="tree" class="px-3 py-1 text-sm rounded-full">家系図</button>
                 </div>
                  <button id="settings-button" title="設定" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </button>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                 </button>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="flex-1 relative overflow-hidden">
-            <div id="tree-view" class="w-full h-full">
+             <div id="list-view" class="w-full h-full p-4 overflow-y-auto">
+                 <div class="flex justify-between items-center mb-4">
+                      <h2 class="text-lg font-bold">人物一覧</h2>
+                     <button id="add-person-list-btn" class="accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">
+                         + 新規追加
+                     </button>
+                 </div>
+                 <div id="person-list-container" class="space-y-8">
+                     </div>
+             </div>
+            <div id="tree-view" class="w-full h-full hidden">
                 <svg id="tree-svg" class="w-full h-full">
                     <g id="tree-container"></g>
                 </svg>
             </div>
-            <div id="list-view" class="w-full h-full p-4 overflow-y-auto hidden">
-                <div class="flex justify-between items-center mb-4">
-                     <h2 class="text-lg font-bold">人物一覧 (年齢順)</h2>
-                    <button id="add-person-list-btn" class="accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">
-                        + 新規追加
-                    </button>
-                </div>
-                <div id="person-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <!-- Person cards will be injected here -->
-                </div>
-            </div>
         </main>
     </div>
 
-    <!-- Person Details Modal -->
     <div id="person-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-white dark:bg-slate-800 rounded-2xl soft-shadow w-full max-w-2xl max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
@@ -101,82 +96,80 @@
                 <form id="person-form" class="space-y-4">
                     <input type="hidden" id="id">
                      <div class="flex items-start space-x-4">
-                        <img id="photoPreview" src="" class="w-24 h-24 rounded-full object-cover bg-slate-200" alt="写真プレビュー">
-                        <div class="flex-1 space-y-2">
-                            <label for="photoUrl" class="block text-sm font-medium text-slate-600 dark:text-slate-300">写真URL</label>
-                            <input type="text" id="photoUrl" placeholder="https://example.com/photo.jpg" class="block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">またはファイルをアップロード:
-                                <input type="file" id="photoFile" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
-                            </label>
-                        </div>
-                    </div>
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-slate-600 dark:text-slate-300">名前 (必須)</label>
-                            <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
-                        </div>
-                        <div>
-                            <label for="kana" class="block text-sm font-medium text-slate-600 dark:text-slate-300">フリガナ</label>
-                            <input type="text" id="kana" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">生年月日 (必須)</label>
-                            <div id="birthdate-container" class="date-selector-group grid grid-cols-3 gap-2"></div>
-                        </div>
-                         <div>
-                            <label for="gender" class="block text-sm font-medium text-slate-600 dark:text-slate-300">性別</label>
-                            <select id="gender" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
-                                <option value="不明">不明</option>
-                                <option value="男性">男性</option>
-                                <option value="女性">女性</option>
-                            </select>
-                        </div>
-                         <div>
-                            <label for="fatherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">父親</label>
-                            <select id="fatherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
-                        </div>
-                         <div>
-                            <label for="motherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">母親</label>
-                            <select id="motherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
-                        </div>
-                        <div>
-                            <label for="spouseId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">配偶者</label>
-                            <select id="spouseId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">結婚記念日</label>
-                            <div id="weddingDate-container" class="date-selector-group grid grid-cols-3 gap-2"></div>
-                        </div>
-                        <div class="md:col-span-2">
-                             <label for="familyCategory" class="block text-sm font-medium text-slate-600 dark:text-slate-300">所属カテゴリー</label>
-                             <select id="familyCategory" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
+                         <img id="photoPreview" src="" class="w-24 h-24 rounded-full object-cover bg-slate-200" alt="写真プレビュー">
+                         <div class="flex-1 space-y-2">
+                             <label for="photoUrl" class="block text-sm font-medium text-slate-600 dark:text-slate-300">写真URL</label>
+                             <input type="text" id="photoUrl" placeholder="https://example.com/photo.jpg" class="block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
+                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">またはファイルをアップロード:
+                                 <input type="file" id="photoFile" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                             </label>
                          </div>
-                         <div class="md:col-span-2">
-                             <label for="address" class="block text-sm font-medium text-slate-600 dark:text-slate-300">住所</label>
-                             <textarea id="address" rows="2" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></textarea>
-                         </div>
-                         <div class="md:col-span-2">
-                             <label for="memo" class="block text-sm font-medium text-slate-600 dark:text-slate-300">メモ</label>
-                             <textarea id="memo" rows="3" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></textarea>
-                         </div>
-                         <div class="md:col-span-2 flex items-start space-x-4">
-                            <label for="isDeceased" class="flex items-center space-x-2 pt-1">
-                                <input type="checkbox" id="isDeceased" class="h-4 w-4 rounded border-gray-300 text-[var(--accent-color)] focus:ring-[var(--accent-color)]">
-                                <span>故人</span>
-                            </label>
-                            <div id="death-date-container" class="hidden flex-1">
-                                <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">没年月日</label>
-                                <div id="deathdate-container-selectors" class="date-selector-group grid grid-cols-3 gap-2"></div>
-                            </div>
-                        </div>
-                    </div>
-                     <!-- Event Timeline -->
-                    <div class="pt-4">
-                        <h3 class="text-lg font-semibold mb-2">イベントタイムライン</h3>
-                        <div id="event-timeline" class="space-y-2 text-sm">
-                            <!-- Events will be injected here -->
-                        </div>
-                    </div>
+                     </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                              <label for="name" class="block text-sm font-medium text-slate-600 dark:text-slate-300">名前 (必須)</label>
+                              <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
+                          </div>
+                          <div>
+                              <label for="kana" class="block text-sm font-medium text-slate-600 dark:text-slate-300">フリガナ</label>
+                              <input type="text" id="kana" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
+                          </div>
+                          <div>
+                              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">生年月日 (必須)</label>
+                              <div id="birthdate-container" class="date-selector-group grid grid-cols-3 gap-2"></div>
+                          </div>
+                           <div>
+                              <label for="gender" class="block text-sm font-medium text-slate-600 dark:text-slate-300">性別</label>
+                              <select id="gender" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
+                                  <option value="不明">不明</option>
+                                  <option value="男性">男性</option>
+                                  <option value="女性">女性</option>
+                              </select>
+                          </div>
+                           <div>
+                              <label for="fatherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">父親</label>
+                              <select id="fatherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
+                          </div>
+                           <div>
+                              <label for="motherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">母親</label>
+                              <select id="motherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
+                          </div>
+                          <div>
+                              <label for="spouseId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">配偶者</label>
+                              <select id="spouseId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
+                          </div>
+                          <div>
+                              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">結婚記念日</label>
+                              <div id="weddingDate-container" class="date-selector-group grid grid-cols-3 gap-2"></div>
+                          </div>
+                          <div class="md:col-span-2">
+                               <label for="familyCategory" class="block text-sm font-medium text-slate-600 dark:text-slate-300">所属カテゴリー</label>
+                               <select id="familyCategory" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
+                           </div>
+                           <div class="md:col-span-2">
+                               <label for="address" class="block text-sm font-medium text-slate-600 dark:text-slate-300">住所</label>
+                               <textarea id="address" rows="2" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></textarea>
+                           </div>
+                           <div class="md:col-span-2">
+                               <label for="memo" class="block text-sm font-medium text-slate-600 dark:text-slate-300">メモ</label>
+                               <textarea id="memo" rows="3" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></textarea>
+                           </div>
+                           <div class="md:col-span-2 flex items-start space-x-4">
+                              <label for="isDeceased" class="flex items-center space-x-2 pt-1">
+                                  <input type="checkbox" id="isDeceased" class="h-4 w-4 rounded border-gray-300 text-[var(--accent-color)] focus:ring-[var(--accent-color)]">
+                                  <span>故人</span>
+                              </label>
+                              <div id="death-date-container" class="hidden flex-1">
+                                  <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">没年月日</label>
+                                  <div id="deathdate-container-selectors" class="date-selector-group grid grid-cols-3 gap-2"></div>
+                              </div>
+                          </div>
+                      </div>
+                       <div class="pt-4">
+                          <h3 class="text-lg font-semibold mb-2">イベントタイムライン</h3>
+                          <div id="event-timeline" class="space-y-2 text-sm">
+                              </div>
+                      </div>
                 </form>
             </div>
             <div class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900/50 rounded-b-2xl">
@@ -189,7 +182,6 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
         <div class="bg-white dark:bg-slate-800 rounded-2xl soft-shadow w-full max-w-lg">
             <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
@@ -204,8 +196,7 @@
                 <div id="category-manager">
                     <h3 class="text-lg font-semibold mb-2">カテゴリー管理</h3>
                     <div id="category-list" class="space-y-2 mb-2">
-                        <!-- category items here -->
-                    </div>
+                        </div>
                     <div class="flex space-x-2">
                         <input type="text" id="new-category-input" placeholder="新しいカテゴリー名" class="flex-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
                         <button id="add-category-btn" class="accent-bg text-white px-4 py-2 rounded-md text-sm font-semibold accent-bg-hover transition-colors">追加</button>
@@ -215,27 +206,27 @@
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">テーマ</label>
                     <div class="mt-2 flex items-center space-x-4">
                          <label class="flex items-center">
-                            <input type="radio" name="theme" value="light" class="form-radio h-4 w-4 text-[var(--accent-color)]">
-                            <span class="ml-2 text-sm">ライト</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="theme" value="dark" class="form-radio h-4 w-4 text-[var(--accent-color)]">
-                            <span class="ml-2 text-sm">ダーク</span>
-                        </label>
+                             <input type="radio" name="theme" value="light" class="form-radio h-4 w-4 text-[var(--accent-color)]">
+                             <span class="ml-2 text-sm">ライト</span>
+                         </label>
+                         <label class="flex items-center">
+                             <input type="radio" name="theme" value="dark" class="form-radio h-4 w-4 text-[var(--accent-color)]">
+                             <span class="ml-2 text-sm">ダーク</span>
+                         </label>
                     </div>
                 </div>
                 <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
                      <h3 class="text-lg font-semibold mb-2">データ管理</h3>
                      <div class="flex flex-col sm:flex-row gap-2">
-                        <button id="import-json" class="flex-1 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-4 py-2 rounded-full text-sm font-semibold transition-colors">JSONインポート</button>
-                        <button id="export-json" class="flex-1 accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">JSONエクスポート</button>
-                        <input type="file" id="json-file-input" class="hidden" accept=".json">
-                    </div>
+                         <button id="import-json" class="flex-1 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-4 py-2 rounded-full text-sm font-semibold transition-colors">JSONインポート</button>
+                         <button id="export-json" class="flex-1 accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">JSONエクスポート</button>
+                         <input type="file" id="json-file-input" class="hidden" accept=".json">
+                     </div>
                      <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                        <button id="import-csv" class="flex-1 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-4 py-2 rounded-full text-sm font-semibold transition-colors">CSVインポート</button>
-                        <button id="export-csv" class="flex-1 accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">CSVエクスポート</button>
-                        <input type="file" id="csv-file-input" class="hidden" accept=".csv">
-                    </div>
+                         <button id="import-csv" class="flex-1 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-4 py-2 rounded-full text-sm font-semibold transition-colors">CSVインポート</button>
+                         <button id="export-csv" class="flex-1 accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">CSVエクスポート</button>
+                         <input type="file" id="csv-file-input" class="hidden" accept=".csv">
+                     </div>
                 </div>
             </div>
         </div>
@@ -278,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadData();
         setupEventListeners();
         applySettings();
-        render();
+        switchView('list'); // 初期表示を一覧に設定
     }
 
     function loadData() {
@@ -286,18 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedSettings = localStorage.getItem('familyTreeSettings');
         const savedCategories = localStorage.getItem('familyTreeCategories');
 
-        if (savedPeople) {
-            people = JSON.parse(savedPeople);
-        } else {
-            people = getSampleData();
-        }
-
-        if (savedCategories) {
-            familyCategories = JSON.parse(savedCategories);
-        } else {
-            familyCategories = ['（未分類）', '高橋家', '佐藤家', '鈴木家'];
-        }
-
+        people = savedPeople ? JSON.parse(savedPeople) : [];
+        familyCategories = savedCategories ? JSON.parse(savedCategories) : ['（未分類）'];
+        
         if (savedSettings) {
             settings = JSON.parse(savedSettings);
         }
@@ -315,6 +297,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     function setupEventListeners() {
+        // 同じブラウザの別タブ間の変更を検知して同期する
+        window.addEventListener('storage', (e) => {
+            if (['familyTreePeople', 'familyTreeSettings', 'familyTreeCategories'].includes(e.key)) {
+                loadData();
+                applySettings();
+                render();
+            }
+        });
+
         // View Toggle
         document.getElementById('view-toggle').addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') switchView(e.target.dataset.view);
@@ -389,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.closest('foreignObject')) return;
             isPanning = true;
             startPoint = { x: e.clientX, y: e.clientY };
-            const vb = treeSvg.getAttribute('viewBox').split(' ').map(Number);
+            const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0, 0, treeSvg.clientWidth, treeSvg.clientHeight];
             viewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]};
         });
 
@@ -407,16 +398,16 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const zoomFactor = 1.1;
             const { clientX, clientY } = e;
-            const vb = treeSvg.getAttribute('viewBox').split(' ').map(Number);
-            let viewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]};
+            const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0, 0, treeSvg.clientWidth, treeSvg.clientHeight];
+            let currentViewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]};
             const point = svgPoint(clientX, clientY);
-            const newW = e.deltaY > 0 ? viewBox.w * zoomFactor : viewBox.w / zoomFactor;
-            const newH = e.deltaY > 0 ? viewBox.h * zoomFactor : viewBox.h / zoomFactor;
-            viewBox.x += (point.x - viewBox.x) * (1 - newW / viewBox.w);
-            viewBox.y += (point.y - viewBox.y) * (1 - newH / viewBox.h);
-            viewBox.w = newW;
-            viewBox.h = newH;
-            treeSvg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);
+            const newW = e.deltaY > 0 ? currentViewBox.w * zoomFactor : currentViewBox.w / zoomFactor;
+            const newH = e.deltaY > 0 ? currentViewBox.h * zoomFactor : currentViewBox.h / zoomFactor;
+            currentViewBox.x += (point.x - currentViewBox.x) * (1 - newW / currentViewBox.w);
+            currentViewBox.y += (point.y - currentViewBox.y) * (1 - newH / currentViewBox.h);
+            currentViewBox.w = newW;
+            currentViewBox.h = newH;
+            treeSvg.setAttribute('viewBox', `${currentViewBox.x} ${currentViewBox.y} ${currentViewBox.w} ${currentViewBox.h}`);
         });
 
         function svgPoint(clientX, clientY) {
@@ -430,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RENDERING ---
     function render() {
         renderCategoryFilter();
-        const currentView = document.querySelector('#view-toggle button[data-view].bg-slate-200')?.dataset.view || 'tree';
+        const currentView = document.querySelector('#view-toggle button[data-view].bg-slate-200')?.dataset.view || 'list';
         if (currentView === 'tree') {
             renderFamilyTree();
         } else {
@@ -440,18 +431,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderFamilyTree() {
-        if (!settings.rootPersonId) {
-            treeContainer.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="currentColor">起点となる人物を設定してください</text>`;
-            return;
+        const selectedCategory = categoryFilter.value;
+        const personScope = selectedCategory === 'all' 
+            ? people 
+            : people.filter(p => p.familyCategory === selectedCategory);
+        
+        let rootPerson = findPersonById(settings.rootPersonId);
+
+        if (!rootPerson || (selectedCategory !== 'all' && !personScope.some(p => p.id === rootPerson.id))) {
+            rootPerson = personScope.length > 0 ? personScope[0] : null;
         }
 
-        const rootPerson = findPersonById(settings.rootPersonId);
         if (!rootPerson) {
-            treeContainer.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="currentColor">起点となる人物が見つかりません</text>`;
+            const message = selectedCategory !== 'all' && people.length > 0
+                ? 'このカテゴリーに属する人物がいません。'
+                : '人物データがありません。一覧画面から追加してください。';
+            treeContainer.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="currentColor">${message}</text>`;
+            treeSvg.removeAttribute('viewBox');
             return;
         }
 
-        const { nodes, links, bounds } = buildTreeLayout(rootPerson);
+        const { nodes, links, bounds } = buildTreeLayout(rootPerson, personScope);
         treeContainer.innerHTML = '';
 
         links.forEach(link => {
@@ -463,7 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
             treeContainer.appendChild(path);
         });
 
-        const selectedCategory = categoryFilter.value;
         nodes.forEach(node => {
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             g.classList.add('node');
@@ -477,11 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const age = calculateAge(node.person.birthdate, node.person.deathdate);
             const borderColor = node.person.isDeceased ? 'border-slate-400' : 'border-[var(--accent-color)]';
-            const highlightClass = (selectedCategory === 'all' || node.person.familyCategory === selectedCategory) ? '' : 'opacity-20';
             const avatarSrc = node.person.photoUrl || generateAvatar(node.person);
 
             foreignObject.innerHTML = `
-                <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full p-2 rounded-lg soft-shadow node-card bg-white dark:bg-slate-800 border-2 ${borderColor} flex items-center space-x-2 cursor-pointer ${highlightClass}">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full p-2 rounded-lg soft-shadow node-card bg-white dark:bg-slate-800 border-2 ${borderColor} flex items-center space-x-2 cursor-pointer">
                     <img src="${avatarSrc}" class="w-12 h-12 rounded-full object-cover shrink-0" alt="${node.person.name}の写真">
                     <div class="flex-1 overflow-hidden">
                         <p class="font-bold text-sm truncate">${node.person.name}</p>
@@ -516,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPersonList(filter = '') {
         personListContainer.innerHTML = '';
         const filteredPeople = people
-            .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+            .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || (p.kana || '').toLowerCase().includes(filter.toLowerCase()))
             .sort((a,b) => new Date(a.birthdate) - new Date(b.birthdate));
 
         if (filteredPeople.length === 0) {
@@ -524,38 +522,60 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        filteredPeople.forEach(person => {
-            const age = calculateAge(person.birthdate, person.deathdate);
-            const card = document.createElement('div');
-            card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex flex-col`;
-            card.dataset.id = person.id;
-            const events = calculateEvents(person);
-            const avatarSrc = person.photoUrl || generateAvatar(person);
+        const groupedByCategory = filteredPeople.reduce((acc, person) => {
+            const category = person.familyCategory || '（未分類）';
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(person);
+            return acc;
+        }, {});
 
-            card.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <img src="${avatarSrc}" class="w-16 h-16 rounded-full object-cover cursor-pointer" alt="${person.name}の写真">
-                    <div class="flex-1 cursor-pointer">
-                        <div class="flex justify-between items-start">
-                             <h3 class="font-bold text-lg">${person.name}</h3>
-                             <span class="text-sm font-semibold ${person.isDeceased ? 'text-slate-400' : 'accent-text'}">${person.isDeceased ? '故人' : age + '歳'}</span>
+        const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
+            if (a === '（未分類）') return 1;
+            if (b === '（未分類）') return -1;
+            return a.localeCompare(b, 'ja');
+        });
+
+        sortedCategories.forEach(category => {
+            const categoryContainer = document.createElement('div');
+            categoryContainer.className = 'col-span-full';
+            categoryContainer.innerHTML = `<h2 class="text-xl font-bold border-b-2 border-[var(--accent-color)] pb-2 mb-4">${category}</h2>`;
+            
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+
+            groupedByCategory[category].forEach(person => {
+                const age = calculateAge(person.birthdate, person.deathdate);
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex flex-col cursor-pointer`;
+                card.dataset.id = person.id;
+                const events = calculateEvents(person);
+                const avatarSrc = person.photoUrl || generateAvatar(person);
+
+                card.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <img src="${avatarSrc}" class="w-16 h-16 rounded-full object-cover" alt="${person.name}の写真">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                 <h3 class="font-bold text-lg">${person.name}</h3>
+                                 <span class="text-sm font-semibold ${person.isDeceased ? 'text-slate-400' : 'accent-text'}">${person.isDeceased ? '故人' : age + '歳'}</span>
+                            </div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">${person.kana || ''}</p>
                         </div>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">${person.kana || ''}</p>
                     </div>
-                     <button title="編集" class="edit-person-btn p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
-                    </button>
-                </div>
-                <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-1 flex-1 cursor-pointer">
-                    <p><strong>誕生日:</strong> ${formatDateJP(person.birthdate)}</p>
-                    <div class="max-h-24 overflow-y-auto space-y-1 pr-2">
-                        ${events.map(e => `<p><strong>${e.name}:</strong> ${formatDateJP(e.date)}</p>`).join('')}
+                    <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-1 flex-1">
+                        <p><strong>誕生日:</strong> ${formatDateJP(person.birthdate)}</p>
+                        <div class="max-h-24 overflow-y-auto space-y-1 pr-2">
+                            ${events.map(e => `<p><strong>${e.name}:</strong> ${formatDateJP(e.date)}</p>`).join('')}
+                        </div>
                     </div>
-                </div>
-            `;
-            personListContainer.appendChild(card);
+                `;
+                gridContainer.appendChild(card);
+            });
+            categoryContainer.appendChild(gridContainer);
+            personListContainer.appendChild(categoryContainer);
         });
     }
+
 
     // --- UI/VIEW LOGIC ---
     function switchView(view) {
@@ -565,10 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         treeViewEl.classList.toggle('hidden', view !== 'tree');
         listViewEl.classList.toggle('hidden', view !== 'list');
-        searchBox.classList.toggle('md:block', view === 'list');
+        searchBox.classList.toggle('hidden', view !== 'list');
         categoryFilterContainer.classList.toggle('hidden', view !== 'tree');
         categoryFilterContainer.classList.toggle('flex', view === 'tree');
-
         render();
     }
     
@@ -587,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="h-full w-0.5 bg-slate-300 dark:bg-slate-600"></div>
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full accent-bg border-2 border-white dark:border-slate-800"></div>
                 </div>
-                <div>${event.name} (${event.age}歳)</div>
+                <div>${event.name}</div>
             </div>
         `).join('');
     }
@@ -674,6 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index !== -1) people[index] = { ...people[index], ...personData };
         } else {
             people.push(personData);
+            if(!settings.rootPersonId) settings.rootPersonId = personData.id;
         }
         
         if (personData.spouseId) {
@@ -706,12 +726,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function addCategory() {
         const input = document.getElementById('new-category-input');
         const newCategory = input.value.trim();
-        if (newCategory && !familyCategories.includes(newCategory)) {
-            familyCategories.push(newCategory);
-            saveData();
-            renderCategoryManager();
-            input.value = '';
+        if (!newCategory) {
+            alert('カテゴリー名を入力してください。');
+            return;
         }
+        if (familyCategories.includes(newCategory)) {
+            alert('そのカテゴリーは既に存在します。');
+            return;
+        }
+        familyCategories.push(newCategory);
+        saveData();
+        renderCategoryManager();
+        renderCategoryFilter(); // Ensure filter dropdown is updated
+        input.value = '';
     }
 
     function handleDeleteCategory(e) {
@@ -719,12 +746,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryToDelete = e.target.dataset.category;
             if (categoryToDelete && categoryToDelete !== '（未分類）') {
                 if(confirm(`「${categoryToDelete}」を削除しますか？このカテゴリーの人物は「（未分類）」に移動します。`)){
+                    if (categoryFilter.value === categoryToDelete) {
+                        categoryFilter.value = 'all';
+                    }
                     familyCategories = familyCategories.filter(c => c !== categoryToDelete);
                     people.forEach(p => {
-                        if (p.familyCategory === categoryToDelete) p.familyCategory = '（未分類）';
+                        if (p.familyCategory === categoryToDelete) {
+                            p.familyCategory = '（未分類）';
+                        }
                     });
                     saveData();
                     renderCategoryManager();
+                    render();
                 }
             }
         }
@@ -735,53 +768,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function calculateEvents(person) {
         if (!person.birthdate) return [];
-        const birth = new Date(person.birthdate);
         let events = [];
-        const eventDefs = [
-            { name: '小学校卒業', age: 12, month: 3, day: 31 },
-            { name: '中学校卒業', age: 15, month: 3, day: 31 },
-            { name: '高校卒業', age: 18, month: 3, day: 31 },
-            { name: '大学卒業', age: 22, month: 3, day: 31 },
-            { name: '成人', age: 18, month: birth.getMonth()+1, day: birth.getDate() },
-            { name: '還暦', age: 60, month: birth.getMonth()+1, day: birth.getDate() },
-        ];
         
-        eventDefs.forEach(def => {
-            let eventDate = (def.month && def.day) 
-                ? new Date(birth.getFullYear() + def.age, def.month - 1, def.day)
-                : new Date(birth.getFullYear() + def.age, birth.getMonth(), birth.getDate());
-            if (eventDate <= new Date()) events.push({ date: eventDate.toISOString().split('T')[0], name: def.name, age: def.age });
-        });
-
         if (person.weddingDate) {
-            events.push({ date: person.weddingDate, name: '結婚記念日', age: calculateAge(person.birthdate, person.weddingDate) });
+            events.push({ date: person.weddingDate, name: '結婚記念日' });
         }
         
         if (person.isDeceased && person.deathdate) {
             const deathDate = new Date(person.deathdate + 'T00:00:00');
-            events.push({ date: person.deathdate, name: '命日', age: calculateAge(person.birthdate, person.deathdate) });
-
             const memorials = [
                 { name: '一周忌', years: 1 }, { name: '三回忌', years: 2 },
                 { name: '七回忌', years: 6 }, { name: '十三回忌', years: 12 },
-                { name: '十七回忌', years: 16 }, { name: '二十三回忌', years: 22 },
-                { name: '三十三回忌', years: 32 }, { name: '五十回忌', years: 49 },
             ];
             
             memorials.forEach(memorial => {
                 const memorialDate = new Date(deathDate);
                 memorialDate.setFullYear(deathDate.getFullYear() + memorial.years);
-                if (memorialDate <= new Date()) {
-                     events.push({
-                        date: memorialDate.toISOString().split('T')[0],
-                        name: memorial.name,
-                        age: calculateAge(person.birthdate, memorialDate.toISOString().split('T')[0])
-                    });
-                }
+                events.push({
+                    date: memorialDate.toISOString().split('T')[0],
+                    name: memorial.name,
+                });
             });
         }
-
-
         return events.sort((a,b) => new Date(a.date) - new Date(b.date));
     }
     
@@ -835,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.value = null;
     }
     
-    function createDateSelectors(containerId, initialDate, isRequired) {
+    function createDateSelectors(containerId, initialDate) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
 
@@ -925,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderCategoryFilter() {
         const currentValue = categoryFilter.value;
-        categoryFilter.innerHTML = '<option value="all">すべてのカテゴリー</option>';
+        categoryFilter.innerHTML = '<option value="all">すべてのファミリー</option>';
         familyCategories.forEach(cat => {
             if (cat === '（未分類）') return;
             const option = document.createElement('option');
@@ -933,6 +941,12 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = cat;
             categoryFilter.appendChild(option);
         });
+        // Add "(Uncategorized)" at the end
+        const uncategorizedOption = document.createElement('option');
+        uncategorizedOption.value = '（未分類）';
+        uncategorizedOption.textContent = '（未分類）';
+        categoryFilter.appendChild(uncategorizedOption);
+
         categoryFilter.value = currentValue;
     }
     
@@ -942,7 +956,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyTheme() { document.documentElement.classList.toggle('dark', settings.theme === 'dark'); }
     function applySettings() {
         applyTheme();
-        document.getElementById('rootPersonId').value = settings.rootPersonId;
         const themeRadio = document.querySelector(`input[name="theme"][value="${settings.theme}"]`);
         if (themeRadio) themeRadio.checked = true;
     }
@@ -962,7 +975,6 @@ document.addEventListener('DOMContentLoaded', () => {
         render();
         closePersonModal();
     }
-     function getChildren(personId) { return people.filter(p => p.fatherId === personId || p.motherId === personId); }
      function calculateAge(birthdate, deathdate = null) {
         if (!birthdate) return '?';
         const birth = new Date(birthdate);
@@ -972,16 +984,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (m < 0 || (m === 0 && end.getDate() < birth.getDate())) { age--; }
         return Math.max(0, age);
     }
-    function buildTreeLayout(rootPerson) {
+    function buildTreeLayout(rootPerson, personData) {
+        const findPerson = (id) => personData.find(p => p.id === id);
+        const getChildren = (id) => personData.filter(p => p.fatherId === id || p.motherId === id);
+
         let nodes = [], links = [], positions = {}, generationLevels = {}, bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 }, visited = new Set();
         function traverse(person, level) {
             if (!person || visited.has(person.id)) return;
             visited.add(person.id);
             if (!generationLevels[level]) generationLevels[level] = [];
             if (!generationLevels[level].includes(person.id)) generationLevels[level].push(person.id);
-            if(person.fatherId) traverse(findPersonById(person.fatherId), level - 1);
-            if(person.motherId) traverse(findPersonById(person.motherId), level - 1);
-            if(person.spouseId) traverse(findPersonById(person.spouseId), level);
+            if(person.fatherId) traverse(findPerson(person.fatherId), level - 1);
+            if(person.motherId) traverse(findPerson(person.motherId), level - 1);
+            if(person.spouseId) traverse(findPerson(person.spouseId), level);
             getChildren(person.id).forEach(child => traverse(child, level + 1));
         }
         traverse(rootPerson, 0);
@@ -996,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const drawnLinks = new Set();
         visited.forEach(id => {
-            const person = findPersonById(id), pos = positions[id];
+            const person = findPerson(id), pos = positions[id];
             if (!person || !pos) return;
             nodes.push({ id: person.id, person, x: pos.x, y: pos.y });
             bounds.minX = Math.min(bounds.minX, pos.x); bounds.maxX = Math.max(bounds.maxX, pos.x);
@@ -1029,35 +1044,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
      function exportJSON() { alert('Not implemented in this version'); } function importJSON(event) { alert('Not implemented in this version'); }
      function exportCSV() { alert('Not implemented in this version'); } function importCSV(event) { alert('Not implemented in this version'); }
-
-    // --- SAMPLE DATA (Updated) ---
-    function getSampleData() {
-        const p1 = { id: crypto.randomUUID(), name: '高橋 正雄', kana: 'タカハシ マサオ', birthdate: '1935-04-10', gender: '男性', isDeceased: true, deathdate: '2015-10-20', fatherId: null, motherId: null, spouseId: null, photoUrl: null, familyCategory: '高橋家', memo: '初代。厳格だった。', weddingDate: '1960-05-15', address: '東京都渋谷区' };
-        const p2 = { id: crypto.randomUUID(), name: '高橋 和子', kana: 'タカハシ カズコ', birthdate: '1938-08-25', gender: '女性', isDeceased: false, deathdate: null, fatherId: null, motherId: null, spouseId: p1.id, photoUrl: null, familyCategory: '高橋家', memo: '料理上手。', weddingDate: '1960-05-15', address: '東京都渋谷区' };
-        p1.spouseId = p2.id;
-        
-        const p3 = { id: crypto.randomUUID(), name: '佐藤 健一', kana: 'サトウ ケンイチ', birthdate: '1933-01-15', gender: '男性', isDeceased: true, deathdate: '2010-05-18', fatherId: null, motherId: null, spouseId: null, photoUrl: null, familyCategory: '佐藤家', memo: '', weddingDate: null, address: '' };
-        const p4 = { id: crypto.randomUUID(), name: '佐藤 良子', kana: 'サトウ ヨシコ', birthdate: '1936-11-03', gender: '女性', isDeceased: true, deathdate: '2018-01-02', fatherId: null, motherId: null, spouseId: p3.id, photoUrl: null, familyCategory: '佐藤家', memo: '', weddingDate: null, address: '' };
-        p3.spouseId = p4.id;
-
-        const p5 = { id: crypto.randomUUID(), name: '高橋 太郎', kana: 'タカハシ タロウ', birthdate: '1965-05-20', gender: '男性', isDeceased: false, deathdate: null, fatherId: p1.id, motherId: p2.id, spouseId: null, photoUrl: null, familyCategory: '高橋家', memo: '釣りが趣味。', weddingDate: '1994-06-10', address: '神奈川県横浜市' };
-        const p6 = { id: crypto.randomUUID(), name: '高橋 (佐藤) 京子', kana: 'タカハシ (サトウ) キョウコ', birthdate: '1968-07-30', gender: '女性', isDeceased: false, deathdate: null, fatherId: p3.id, motherId: p4.id, spouseId: p5.id, photoUrl: null, familyCategory: '高橋家', memo: '旧姓は佐藤。', weddingDate: '1994-06-10', address: '神奈川県横浜市' };
-        p5.spouseId = p6.id;
-
-        const p7 = { id: crypto.randomUUID(), name: '高橋 誠', kana: 'タカハシ マコト', birthdate: '1995-09-01', gender: '男性', isDeceased: false, deathdate: null, fatherId: p5.id, motherId: p6.id, spouseId: null, photoUrl: null, familyCategory: '高橋家', memo: 'ITエンジニア。', weddingDate: '2022-11-22', address: '東京都新宿区' };
-        const p8 = { id: crypto.randomUUID(), name: '高橋 (鈴木) 裕子', kana: 'タカハシ (スズキ) ユウコ', birthdate: '1996-02-14', gender: '女性', isDeceased: false, deathdate: null, fatherId: null, motherId: null, spouseId: p7.id, photoUrl: null, familyCategory: '高橋家', memo: '旧姓は鈴木。', weddingDate: '2022-11-22', address: '東京都新宿区' };
-        p7.spouseId = p8.id;
-
-        const p9 = { id: crypto.randomUUID(), name: '高橋 美咲', kana: 'タカハシ ミサキ', birthdate: '1998-12-10', gender: '女性', isDeceased: false, deathdate: null, fatherId: p5.id, motherId: p6.id, spouseId: null, photoUrl: null, familyCategory: '高橋家', memo: '海外旅行が好き。', weddingDate: null, address: '神奈川県横浜市' };
-        
-        const p10 = { id: crypto.randomUUID(), name: '高橋 健太', kana: 'タカハシ ケンタ', birthdate: '2025-01-15', gender: '男性', isDeceased: false, deathdate: null, fatherId: p7.id, motherId: p8.id, spouseId: null, photoUrl: null, familyCategory: '高橋家', memo: '', weddingDate: null, address: '東京都新宿区' };
-
-        return [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
-    }
     
     init();
 });
 </script>
 </body>
 </html>
-
