@@ -41,8 +41,8 @@
             </div>
             <input type="search" id="search-box" placeholder="名前で検索..." class="w-40 sm:w-64 px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all text-sm">
             <div id="view-toggle" class="flex items-center border border-slate-300 dark:border-slate-600 rounded-full p-0.5">
-                <button data-view="list" class="px-3 py-1 text-sm rounded-full bg-slate-200 dark:bg-slate-700">一覧</button>
                 <button data-view="age" class="px-3 py-1 text-sm rounded-full">年齢別</button>
+                <button data-view="list" class="px-3 py-1 text-sm rounded-full bg-slate-200 dark:bg-slate-700">一覧</button>
                 <button data-view="tree" class="px-3 py-1 text-sm rounded-full">家系図</button>
             </div>
             <button id="settings-button" title="設定" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
@@ -104,6 +104,7 @@
                     <div class="flex-1 space-y-2">
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">写真</label>
                         <input type="file" id="photoFile" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                        <button type="button" id="delete-photo-btn" class="hidden text-sm text-red-600 hover:text-red-800">写真を削除</button>
                         <progress id="uploadProgress" value="0" max="100" class="w-full h-2 mt-1 hidden"></progress>
                         <input type="hidden" id="photoUrl">
                     </div>
@@ -277,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const personForm = document.getElementById('person-form');
     const searchBox = document.getElementById('search-box');
     const nodeSize = { width: 180, height: 80 };
-    const nodeGap = { x: 40, y: 100 };
+    const nodeGap = { x: 60, y: 120 };
 
     // --- 3. アプリケーションの初期化 ---
     function init() {
@@ -441,9 +442,10 @@ document.addEventListener('DOMContentLoaded', () => {
         personScope.forEach(person => {
             if (!globalVisited.has(person.id)) {
                 const { nodes, links, bounds } = buildTreeLayout(person, personScope, globalVisited);
+                const shiftX = currentXOffset - bounds.minX;
                 
                 nodes.forEach(node => {
-                    node.x += currentXOffset;
+                    node.x += shiftX;
                     allNodes.push(node);
                 });
 
@@ -454,10 +456,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const command = parts[0];
                         const values = parts.slice(1).map(parseFloat);
                         if (command === 'M' || command === 'H' || command === 'V') {
-                            if(command !== 'V') values[0] += currentXOffset;
-                        } else { // For commands like L, C, etc. with x,y pairs
+                            if(command !== 'V') values[0] += shiftX;
+                        } else { 
                              for(let i=0; i<values.length; i+=2) {
-                                values[i] += currentXOffset;
+                                values[i] += shiftX;
                              }
                         }
                         return `${command} ${values.join(' ')}`;
@@ -466,14 +468,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (!overallBounds) {
-                    overallBounds = { ...bounds, minX: bounds.minX + currentXOffset, maxX: bounds.maxX + currentXOffset };
+                    overallBounds = { ...bounds };
+                    overallBounds.minX += shiftX;
+                    overallBounds.maxX += shiftX;
                 } else {
                     overallBounds.minY = Math.min(overallBounds.minY, bounds.minY);
                     overallBounds.maxY = Math.max(overallBounds.maxY, bounds.maxY);
-                    overallBounds.maxX = bounds.maxX + currentXOffset;
+                    overallBounds.maxX = bounds.maxX + shiftX;
                 }
                 
-                currentXOffset += (bounds.maxX - bounds.minX) + nodeSize.width + nodeGap.x * 2;
+                currentXOffset = overallBounds.maxX + nodeSize.width + nodeGap.x * 2;
             }
         });
         
@@ -547,6 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('close-settings-button').addEventListener('click', closeSettingsModal);
         personForm.addEventListener('submit', handleFormSubmit);
         document.getElementById('delete-person-button').addEventListener('click', handleDeletePerson);
+        document.getElementById('delete-photo-btn').addEventListener('click', handleDeletePhoto);
         searchBox.addEventListener('input', render);
 
         document.querySelectorAll('input[name="theme"]').forEach(radio => {
@@ -600,7 +605,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('生年月日を正しく入力してください。');
             }
             
-            // Step 1: Upload new photo if it exists
             if (currentFileUpload) {
                 newPhotoUrl = await uploadPhoto(id, currentFileUpload);
             }
@@ -616,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 spouseId: document.getElementById('spouseId').value || null,
                 isDeceased: document.getElementById('isDeceased').checked,
                 deathdate: document.getElementById('isDeceased').checked ? getDateFromSelectors('deathdate-container-selectors') : null,
-                photoUrl: newPhotoUrl || oldPhotoUrl || null, // Use new, fallback to old, otherwise null
+                photoUrl: newPhotoUrl || oldPhotoUrl,
                 familyCategory: document.getElementById('familyCategory').value,
                 address: document.getElementById('address').value,
                 memo: document.getElementById('memo').value,
@@ -626,21 +630,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 weddingDate: getDateFromSelectors('weddingDate-container')
             };
             
-            // Step 2: Save data to Firestore
             await savePerson(personData);
 
-            // Step 3: After successful save, delete the old photo from Storage IF a new one was uploaded
-            if (newPhotoUrl && oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
-                 if (newPhotoUrl !== oldPhotoUrl) {
-                    try {
-                        await storage.refFromURL(oldPhotoUrl).delete();
-                    } catch (error) {
-                        console.warn("古い写真の削除に失敗しましたが、新しい情報は保存されています:", error);
-                    }
+            if (newPhotoUrl && oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/') && newPhotoUrl !== oldPhotoUrl) {
+                try {
+                    await storage.refFromURL(oldPhotoUrl).delete();
+                } catch (error) {
+                    console.warn("古い写真の削除に失敗しましたが、新しい情報は保存されています:", error);
                 }
             }
             
-            // Step 4: Handle spouse linking
             if (personData.spouseId) {
                 const spouse = findPersonById(personData.spouseId);
                 if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) {
@@ -656,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("保存に失敗しました:", error);
             alert(error.message || "保存に失敗しました。");
             
-            // If upload succeeded but Firestore save failed, delete the newly uploaded photo to avoid orphans
             if (newPhotoUrl) {
                 try {
                     await storage.refFromURL(newPhotoUrl).delete();
@@ -671,6 +669,32 @@ document.addEventListener('DOMContentLoaded', () => {
             currentFileUpload = null;
         }
     }
+    
+    async function handleDeletePhoto() {
+        const id = document.getElementById('id').value;
+        if (!id) return;
+        
+        const person = findPersonById(id);
+        const photoUrl = person?.photoUrl;
+
+        if (photoUrl && confirm('この写真を削除しますか？')) {
+            try {
+                if (photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+                    await storage.refFromURL(photoUrl).delete();
+                }
+                await savePerson({ id: id, photoUrl: null });
+                
+                document.getElementById('photoUrl').value = '';
+                document.getElementById('photoPreview').src = generateAvatar(person);
+                document.getElementById('delete-photo-btn').classList.add('hidden');
+
+            } catch(error) {
+                console.error("写真の削除に失敗しました:", error);
+                alert("写真の削除に失敗しました。");
+            }
+        }
+    }
+
 
     async function handleDeletePerson() {
         const id = document.getElementById('id').value;
@@ -688,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const updates = people.filter(p => p.fatherId === id || p.motherId === id || p.spouseId === id)
                 .map(p => {
-                    const updated = { ...p };
+                    const updated = { ...p, id: p.id };
                     if (p.fatherId === id) updated.fatherId = null;
                     if (p.motherId === id) updated.motherId = null;
                     if (p.spouseId === id) updated.spouseId = null;
@@ -725,7 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const updates = people
                 .filter(p => p.familyCategory === categoryToDelete)
-                .map(p => savePerson({ ...p, familyCategory: '（未分類）' }));
+                .map(p => savePerson({ ...p, id: p.id, familyCategory: '（未分類）' }));
             
             await Promise.all(updates);
             
@@ -746,6 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = e => document.getElementById('photoPreview').src = e.target.result;
         reader.readAsDataURL(file);
         document.getElementById('photoFile').value = null;
+        document.getElementById('delete-photo-btn').classList.remove('hidden');
     }
 
     // --- 8. ヘルパー関数とUIコンポーネント ---
@@ -822,6 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentFileUpload = null;
         document.getElementById('uploadProgress').classList.add('hidden');
         document.getElementById('death-date-container').classList.add('hidden');
+        document.getElementById('delete-photo-btn').classList.add('hidden');
         populateSelectOptions(personId);
         populateCategorySelect(document.getElementById('familyCategory'));
         
@@ -846,6 +872,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 document.getElementById('photoUrl').value = person.photoUrl || '';
                 document.getElementById('photoPreview').src = person.photoUrl || generateAvatar(person);
+                if (person.photoUrl) {
+                    document.getElementById('delete-photo-btn').classList.remove('hidden');
+                }
                 document.getElementById('familyCategory').value = person.familyCategory || '（未分類）';
                 document.getElementById('address').value = person.address || '';
                 document.getElementById('memo').value = person.memo || '';
@@ -896,10 +925,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function getAgeDisplay(person, isSimple = false) {
         if (person.isDeceased) {
             const ageAtDeath = calculateAge(person.birthdate, person.deathdate);
+            const ageIfAlive = calculateAge(person.birthdate, null);
+            const deceasedText = `享年${ageAtDeath}歳 (${ageIfAlive}歳)`;
             if (isSimple) {
-                return `享年${ageAtDeath}歳`;
+                return deceasedText;
             }
-            return `故人 (享年${ageAtDeath}歳)`;
+            return `故人 (${deceasedText})`;
         }
         return `${calculateAge(person.birthdate, null)}歳`;
     }
@@ -1069,7 +1100,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if(person.spouseId && positions[person.spouseId] && person.id < person.spouseId) {
                 const spousePos = positions[person.spouseId];
-                if (Math.abs(pos.y - spousePos.y) < nodeGap.y / 2) links.push({d: `M ${pos.x + nodeSize.width / 2} ${pos.y + nodeSize.height / 2} H ${spousePos.x - nodeSize.width / 2}`});
+                if (Math.abs(pos.y - spousePos.y) < nodeGap.y / 2) {
+                     links.push({d: `M ${pos.x + nodeSize.width} ${pos.y + nodeSize.height / 2} H ${spousePos.x}`});
+                }
             }
             
             const children = getChildren(person.id);
@@ -1078,21 +1111,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!drawnLinks.has(coupleKey)) {
                     const childrenPos = children.map(c => positions[c.id]).filter(Boolean);
                     if (childrenPos.length > 0) {
-                        let startX = pos.x;
+                        let startX = pos.x + nodeSize.width / 2;
                         if (person.spouseId && positions[person.spouseId] && Math.abs(pos.y - positions[person.spouseId].y) < nodeGap.y / 2) {
-                            startX = (pos.x + positions[person.spouseId].x) / 2;
+                            startX = (pos.x + positions[person.spouseId].x + nodeSize.width) / 2;
                         }
-                        const startY = pos.y + nodeSize.height, midY = startY + nodeGap.y / 2;
+                        const startY = pos.y + nodeSize.height;
+                        const midY = startY + nodeGap.y / 2;
                         
                         links.push({ d: `M ${startX} ${startY} V ${midY}` });
                         
-                        const childrenXPoints = childrenPos.map(p => p.x);
+                        const childrenXPoints = childrenPos.map(p => p.x + nodeSize.width / 2);
                         const minChildX = Math.min(...childrenXPoints);
                         const maxChildX = Math.max(...childrenXPoints);
-                        links.push({ d: `M ${minChildX} ${midY} H ${maxChildX}`});
                         
-                        childrenPos.forEach(childPos => {
-                            links.push({ d: `M ${childPos.x} ${midY} V ${childPos.y}` });
+                        if(children.length > 1) {
+                            links.push({ d: `M ${minChildX} ${midY} H ${maxChildX}`});
+                        }
+                        
+                        childrenPos.forEach((childPos, i) => {
+                            links.push({ d: `M ${childrenXPoints[i]} ${midY} V ${childPos.y}` });
                         });
 
                         drawnLinks.add(coupleKey);
