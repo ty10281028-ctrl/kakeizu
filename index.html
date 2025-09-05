@@ -605,6 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('生年月日を正しく入力してください。');
             }
             
+            // Step 1: Upload new photo if it exists
             if (currentFileUpload) {
                 newPhotoUrl = await uploadPhoto(id, currentFileUpload);
             }
@@ -630,8 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 weddingDate: getDateFromSelectors('weddingDate-container')
             };
             
+            // Step 2: Save data to Firestore
             await savePerson(personData);
 
+            // Step 3: After successful save, delete the old photo from Storage IF a new one was uploaded
             if (newPhotoUrl && oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/') && newPhotoUrl !== oldPhotoUrl) {
                 try {
                     await storage.refFromURL(oldPhotoUrl).delete();
@@ -640,6 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
+            // Step 4: Handle spouse linking
             if (personData.spouseId) {
                 const spouse = findPersonById(personData.spouseId);
                 if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) {
@@ -655,6 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("保存に失敗しました:", error);
             alert(error.message || "保存に失敗しました。");
             
+            // If upload succeeded but Firestore save failed, delete the newly uploaded photo to avoid orphans
             if (newPhotoUrl) {
                 try {
                     await storage.refFromURL(newPhotoUrl).delete();
