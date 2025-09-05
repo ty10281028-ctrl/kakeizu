@@ -27,31 +27,21 @@
   .node .node-card{ transition:all .2s ease-in-out; }
   .node:hover .node-card{ transform:translateY(-4px); box-shadow:0 10px 15px -3px rgb(0 0 0 / .1),0 4px 6px -4px rgb(0 0 0 / .1); }
   .deceased-card{ opacity:.8; }
-
-  /* CDN 版では @apply は使えないので純CSSで日付セレクタを整える */
-  .date-selector-group select {
+  /* CDN版では @apply が使えないので純CSSで */
+  .date-selector-group select{
     margin-top:.25rem; display:block; width:100%;
     padding:.5rem .75rem; background:#fff; color:inherit;
     border:1px solid #cbd5e1; border-radius:.375rem;
     font-size:.875rem; line-height:1.25rem;
     box-shadow:0 1px 2px rgb(0 0 0 / 0.05);
   }
-  .dark .date-selector-group select {
-    background:#334155; border-color:#475569; color:#e2e8f0;
-  }
-  .date-selector-group select:focus {
-    outline:none; border-color:var(--accent-color);
-    box-shadow:0 0 0 1px var(--accent-color);
-  }
+  .dark .date-selector-group select{ background:#334155; border-color:#475569; color:#e2e8f0; }
+  .date-selector-group select:focus{ outline:none; border-color:var(--accent-color); box-shadow:0 0 0 1px var(--accent-color); }
 </style>
 </head>
-
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
 <div id="app" class="h-screen w-screen flex flex-col">
-  <!-- ・・・（あなたのHTML本体はそのまま。中身は省略せずこのまま残してください）・・・ -->
-  <!-- 以下、あなたが貼ってくれた HTML 本体は変更なしなので省略しません。 -->
-  <!-- === ここからヘッダー・ビュー・モーダル群は質問に掲載のまま === -->
   <!-- Header -->
   <header class="bg-white dark:bg-slate-800 soft-shadow z-10 p-2 sm:p-4 flex items-center justify-between">
     <h1 class="text-xl sm:text-2xl font-bold text-slate-700 dark:text-slate-100">
@@ -70,19 +60,185 @@
         <button data-view="tree" class="px-3 py-1 text-sm rounded-full">家系図</button>
       </div>
       <button id="settings-button" title="設定" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
     </div>
   </header>
 
-  <!-- Main Content（あなたの原文のまま） -->
+  <!-- Main Content -->
   <main class="flex-1 relative overflow-hidden">
-    <!-- List / Age / Tree …（中略：質問のコードそのまま） -->
-    <!-- ここは質問のHTMLと同一です。省略せずに全部貼り付けてください。 -->
+    <!-- List View -->
+    <div id="list-view" class="w-full h-full p-4 overflow-y-auto">
+      <div class="flex justify-between items-center mb-4 sticky top-0 bg-slate-50 dark:bg-slate-900 py-2 z-10">
+        <div class="flex items-center space-x-2">
+          <h2 class="text-lg font-bold">人物一覧</h2>
+          <select id="sort-order" class="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-full bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)] text-sm">
+            <option value="custom_fuchigami">カスタム（渕上竜也先頭）</option>
+            <option value="birthdate_asc">年齢順（年上から）</option>
+            <option value="birthdate_desc">年齢順（年下から）</option>
+            <option value="kana_asc">名前順</option>
+          </select>
+        </div>
+        <button id="add-person-list-btn" class="accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">
+          + 新規追加
+        </button>
+      </div>
+      <div id="person-list-container" class="space-y-8"></div>
+    </div>
+
+    <!-- Age View -->
+    <div id="age-view" class="w-full h-full p-4 overflow-y-auto hidden">
+      <div class="flex justify-between items-center mb-4 sticky top-0 bg-slate-50 dark:bg-slate-900 py-2 z-10">
+        <h2 class="text-lg font-bold">人物一覧（年齢順）</h2>
+      </div>
+      <div id="person-age-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+    </div>
+
+    <!-- Tree View -->
+    <div id="tree-view" class="w-full h-full hidden">
+      <svg id="tree-svg" class="w-full h-full">
+        <g id="tree-container"></g>
+      </svg>
+    </div>
   </main>
 </div>
 
-<!-- Person Modal / Settings Modal …（中略：質問のコードそのまま） -->
+<!-- Person Modal -->
+<div id="person-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl soft-shadow w-full max-w-2xl max-h-[90vh] flex flex-col">
+    <div class="flex justify-between items-center p-4 border-b border-slate-2 00 dark:border-slate-700">
+      <h2 id="modal-title" class="text-xl font-bold">個人情報の編集</h2>
+      <button id="close-modal-button" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">&times;</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6">
+      <form id="person-form" class="space-y-4">
+        <input type="hidden" id="id">
+        <div class="flex items-start space-x-4">
+          <img id="photoPreview" src="" class="w-24 h-24 rounded-full object-cover bg-slate-200" alt="写真プレビュー">
+          <div class="flex-1 space-y-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">写真</label>
+            <input type="file" id="photoFile" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+            <button type="button" id="delete-photo-btn" class="hidden text-sm text-red-600 hover:text-red-800">写真を削除</button>
+            <progress id="uploadProgress" value="0" max="100" class="w-full h-2 mt-1 hidden"></progress>
+            <input type="hidden" id="photoUrl">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="name" class="block text-sm font-medium text-slate-600 dark:text-slate-300">名前 (必須)</label>
+            <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
+          </div>
+          <div>
+            <label for="kana" class="block text-sm font-medium text-slate-600 dark:text-slate-300">フリガナ</label>
+            <input type="text" id="kana" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">生年月日 (必須)</label>
+            <div id="birthdate-container" class="date-selector-group grid grid-cols-3 gap-2"></div>
+          </div>
+          <div>
+            <label for="gender" class="block text-sm font-medium text-slate-600 dark:text-slate-300">性別</label>
+            <select id="gender" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm">
+              <option value="不明">不明</option>
+              <option value="男性">男性</option>
+              <option value="女性">女性</option>
+            </select>
+          </div>
+          <div>
+            <label for="fatherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">父親</label>
+            <select id="fatherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+          </div>
+          <div>
+            <label for="motherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">母親</label>
+            <select id="motherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+          </div>
+          <div>
+            <label for="spouseId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">配偶者</label>
+            <select id="spouseId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">結婚記念日</label>
+            <div id="weddingDate-container" class="date-selector-group grid grid-cols-3 gap-2"></div>
+          </div>
+          <div class="md:col-span-2">
+            <label for="familyCategory" class="block text-sm font-medium text-slate-600 dark:text-slate-300">所属カテゴリー</label>
+            <select id="familyCategory" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+          </div>
+          <div class="md:col-span-2">
+            <label for="company" class="block text-sm font-medium text-slate-600 dark:text-slate-300">会社名</label>
+            <input type="text" id="company" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+          </div>
+          <div class="md:col-span-2">
+            <label for="comment" class="block text-sm font-medium text-slate-600 dark:text-slate-300">一言コメント</label>
+            <input type="text" id="comment" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+          </div>
+          <div class="md:col-span-2">
+            <label for="lineId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">LINE ID</label>
+            <input type="text" id="lineId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+          </div>
+          <div class="md:col-span-2">
+            <label for="address" class="block text-sm font-medium text-slate-600 dark:text-slate-300">住所</label>
+            <textarea id="address" rows="2" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></textarea>
+          </div>
+          <div class="md:col-span-2">
+            <label for="memo" class="block text-sm font-medium text-slate-600 dark:text-slate-300">メモ</label>
+            <textarea id="memo" rows="3" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></textarea>
+          </div>
+          <div class="md:col-span-2 flex items-start space-x-4">
+            <label for="isDeceased" class="flex items-center space-x-2 pt-1">
+              <input type="checkbox" id="isDeceased" class="h-4 w-4 rounded border-gray-300 text-[var(--accent-color)] focus:ring-[var(--accent-color)]">
+              <span>故人</span>
+            </label>
+            <div id="death-date-container" class="hidden flex-1">
+              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">没年月日</label>
+              <div id="deathdate-container-selectors" class="date-selector-group grid grid-cols-3 gap-2"></div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900/50 rounded-b-2xl">
+      <button id="delete-person-button" class="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-sm font-semibold transition-colors">削除</button>
+      <div>
+        <button id="cancel-modal-button" class="text-slate-700 dark:text-slate-200 bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 px-4 py-2 rounded-full text-sm font-semibold transition-colors">キャンセル</button>
+        <button id="save-person-button" type="submit" form="person-form" class="accent-bg text-white px-4 py-2 rounded-full text-sm font-semibold accent-bg-hover transition-colors">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl soft-shadow w-full max-w-lg">
+    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+      <h2 class="text-xl font-bold">設定</h2>
+      <button id="close-settings-button" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">&times;</button>
+    </div>
+    <div class="p-6 space-y-6">
+      <div id="category-manager">
+        <h3 class="text-lg font-semibold mb-2">カテゴリー管理</h3>
+        <div id="category-list" class="space-y-2 mb-2"></div>
+        <div class="flex space-x-2">
+          <input type="text" id="new-category-input" placeholder="新しいカテゴリー名" class="flex-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+          <button id="add-category-btn" class="accent-bg text-white px-4 py-2 rounded-md text-sm font-semibold accent-bg-hover transition-colors">追加</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">テーマ</label>
+        <div class="mt-2 flex items-center space-x-4">
+          <label class="flex items-center">
+            <input type="radio" name="theme" value="light" class="form-radio h-4 w-4 text-[var(--accent-color)]">
+            <span class="ml-2 text-sm">ライト</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" name="theme" value="dark" class="form-radio h-4 w-4 text-[var(--accent-color)]">
+            <span class="ml-2 text-sm">ダーク</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Firebase v8 Scripts -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -108,11 +264,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // ====== ここが重要：匿名認証にサインインしてから init() を実行 ======
+  // 認証してから init() を実行
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       console.log('[auth] signed in:', user.uid, 'anonymous:', user.isAnonymous);
-      init();                   // 認証OK → アプリ開始
+      init();
     } else {
       firebase.auth().signInAnonymously().catch(err => {
         console.error('匿名認証エラー:', err);
@@ -121,12 +277,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- 2. 以降はあなたのアプリ本体（質問のロジックをそのまま） ---
+  // --- 2. グローバル変数とDOM要素 ---
   const peopleCollection = db.collection('people');
   const categoriesDoc = db.collection('settings').doc('categories');
   let people = [];
   let familyCategories = [];
-  let settings = { theme:'light' };
+  let settings = { theme: 'light' };
   let initialLoad = true;
   let currentFileUpload = null;
 
@@ -144,10 +300,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsModal = document.getElementById('settings-modal');
   const personForm = document.getElementById('person-form');
   const searchBox = document.getElementById('search-box');
-  const nodeSize = { width:180, height:80 };
-  const nodeGap = { x:60, y:120 };
+  const nodeSize = { width: 180, height: 80 };
+  const nodeGap = { x: 60, y: 120 };
 
-  function init(){
+  // --- 3. アプリケーションの初期化 ---
+  function init() {
     const savedSettings = localStorage.getItem('familyTreeSettings');
     if (savedSettings) settings = { ...settings, ...JSON.parse(savedSettings) };
     setupEventListeners();
@@ -155,26 +312,27 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('list');
 
     categoriesDoc.onSnapshot(doc => {
-      familyCategories = doc.exists ? (doc.data().list || ['（未分類）']) : ['（未分類）'];
+      familyCategories = doc.exists ? doc.data().list || ['（未分類）'] : ['（未分類）'];
       renderCategoryFilter();
       if(!initialLoad) render();
-    }, e => console.error('カテゴリーの読み込みエラー:', e));
+    }, error => console.error("カテゴリーの読み込みエラー:", error));
 
     peopleCollection.onSnapshot(snapshot => {
-      people = snapshot.docs.map(doc => ({ id:doc.id, ...doc.data() }));
+      people = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       render();
       initialLoad = false;
-    }, e => console.error('人物リストの読み込みエラー:', e));
+    }, error => console.error("人物リストの読み込みエラー:", error));
   }
 
-  // === 以降の関数群（savePerson / uploadPhoto / render… etc.）は
-  //     あなたの投稿コードをそのまま貼り付けてください。内容は変更していません。 ===
+  // --- 4. Firestoreとのデータ連携 ---
+  async function savePerson(personData) {
+    const { id, ...dataToSave } = personData;
+    await peopleCollection.doc(id).set(dataToSave, { merge: true });
+  }
+  async function deletePerson(personId) { await peopleCollection.doc(personId).delete(); }
+  async function saveCategories() { await categoriesDoc.set({ list: familyCategories }); }
 
-  async function savePerson(personData){ const { id, ...dataToSave } = personData; await peopleCollection.doc(id).set(dataToSave, { merge:true }); }
-  async function deletePerson(personId){ await peopleCollection.doc(personId).delete(); }
-  async function saveCategories(){ await categoriesDoc.set({ list: familyCategories }); }
-
-  async function uploadPhoto(id, file){
+  async function uploadPhoto(id, file) {
     const progress = document.getElementById('uploadProgress');
     progress.classList.remove('hidden'); progress.value = 0;
     const fileName = `photos/${id}/${Date.now()}_${file.name}`;
@@ -183,15 +341,747 @@ document.addEventListener('DOMContentLoaded', () => {
     return new Promise((resolve, reject) => {
       uploadTask.on('state_changed',
         s => { progress.value = (s.bytesTransferred / s.totalBytes) * 100; },
-        err => { console.error('Upload failed:', err); progress.classList.add('hidden'); reject(err); },
+        error => { console.error("Upload failed:", error); progress.classList.add('hidden'); reject(error); },
         () => { uploadTask.snapshot.ref.getDownloadURL().then(url => { progress.classList.add('hidden'); resolve(url); }); }
       );
     });
   }
 
-  /* ……この下はあなたの元コード（render系/イベント/ヘルパー等）をそのまま……
-     質問に貼ってくれた最新版と同じ内容なので省略しますが、実際には全部入れてください。 */
-  // ---（ここに render/renderFamilyTree/handlers/etc. を質問の通りペースト）---
+  // --- 5. 描画処理 ---
+  function render() {
+    populateSelectOptions();
+    const currentView = document.querySelector('#view-toggle button[data-view].bg-slate-200')?.dataset.view || 'list';
+    if (currentView === 'tree') renderFamilyTree();
+    else if (currentView === 'age') renderAgeList();
+    else renderPersonList();
+  }
+
+  function renderPersonList() {
+    const filter = searchBox.value.toLowerCase();
+    const sortOrder = document.getElementById('sort-order').value;
+    personListContainer.innerHTML = '';
+    const filteredPeople = people.filter(p => p.name.toLowerCase().includes(filter) || (p.kana || '').toLowerCase().includes(filter));
+
+    if (filteredPeople.length === 0) {
+      personListContainer.innerHTML = `<p class="text-slate-500 text-center py-8">該当する人物が見つかりません。「+ 新規追加」から人物を登録してください。</p>`;
+      return;
+    }
+
+    const groupedByCategory = filteredPeople.reduce((acc, person) => {
+      const category = person.familyCategory || '（未分類）';
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(person);
+      return acc;
+    }, {});
+
+    const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
+      if (a === '（未分類）') return 1; if (b === '（未分類）') return -1;
+      return a.localeCompare(b, 'ja');
+    });
+
+    sortedCategories.forEach(category => {
+      const categoryContainer = document.createElement('div');
+      categoryContainer.innerHTML = `<h2 class="text-xl font-bold border-b-2 border-[var(--accent-color)] pb-2 mb-4">${category}</h2>`;
+      const gridContainer = document.createElement('div');
+      gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+
+      const peopleInCategory = groupedByCategory[category];
+      peopleInCategory.sort((a,b) => {
+        if (sortOrder === 'custom_fuchigami') {
+          if (a.name === '渕上竜也') return -1; if (b.name === '渕上竜也') return 1;
+        }
+        if (!a.birthdate) return 1; if (!b.birthdate) return -1;
+        switch (sortOrder) {
+          case 'birthdate_desc': return new Date(b.birthdate) - new Date(a.birthdate);
+          case 'kana_asc': return (a.kana || a.name).localeCompare(b.kana || b.name, 'ja');
+          default: return new Date(a.birthdate) - new Date(b.birthdate);
+        }
+      });
+      peopleInCategory.forEach(person => gridContainer.appendChild(createPersonCard(person)));
+      categoryContainer.appendChild(gridContainer);
+      personListContainer.appendChild(categoryContainer);
+    });
+  }
+
+  function renderAgeList() {
+    const filter = searchBox.value.toLowerCase();
+    personAgeListContainer.innerHTML = '';
+    const filteredPeople = people
+      .filter(p => p.name.toLowerCase().includes(filter) || (p.kana || '').toLowerCase().includes(filter))
+      .sort((a, b) => {
+        if (!a.birthdate) return 1; if (!b.birthdate) return -1;
+        const aAge = calculateAge(a.birthdate, null);
+        const bAge = calculateAge(b.birthdate, null);
+        return bAge - aAge;
+      });
+
+    if (filteredPeople.length === 0) {
+      personAgeListContainer.innerHTML = `<p class="text-slate-500 col-span-full text-center py-8">該当する人物が見つかりません。</p>`;
+      return;
+    }
+    filteredPeople.forEach(person => personAgeListContainer.appendChild(createAgeViewCard(person)));
+  }
+
+  function renderFamilyTree() {
+    const selectedCategory = categoryFilter.value;
+    const personScope = selectedCategory === 'all' ? people : people.filter(p => p.familyCategory === selectedCategory);
+    treeContainer.innerHTML = '';
+
+    if (personScope.length === 0) {
+      const message = selectedCategory !== 'all' && people.length > 0 ? 'このカテゴリーに属する人物がいません。' : '人物データがありません。一覧画面から追加してください。';
+      treeContainer.innerHTML = `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" fill="currentColor">${message}</text>`;
+      treeSvg.removeAttribute('viewBox');
+      return;
+    }
+
+    const allNodes = [];
+    const allLinks = [];
+    const globalVisited = new Set();
+    let currentXOffset = 0;
+    let overallBounds = null;
+
+    personScope.forEach(person => {
+      if (!globalVisited.has(person.id)) {
+        const { nodes, links, bounds } = buildTreeLayout(person, personScope, globalVisited);
+        const shiftX = currentXOffset - bounds.minX;
+
+        nodes.forEach(node => { node.x += shiftX; allNodes.push(node); });
+
+        links.forEach(link => {
+          const commands = link.d.split(/(?=[MVH])/);
+          const newCommands = commands.map(cmd => {
+            const parts = cmd.trim().split(' ');
+            const command = parts[0];
+            const values = parts.slice(1).map(parseFloat);
+            if (command === 'M' || command === 'H' || command === 'V') {
+              if (command !== 'V') values[0] += shiftX;
+            } else {
+              for (let i=0; i<values.length; i+=2) values[i] += shiftX;
+            }
+            return `${command} ${values.join(' ')}`;
+          });
+          allLinks.push({ d: newCommands.join(' ') });
+        });
+
+        if (!overallBounds) {
+          overallBounds = { ...bounds };
+          overallBounds.minX += shiftX;
+          overallBounds.maxX += shiftX;
+        } else {
+          overallBounds.minY = Math.min(overallBounds.minY, bounds.minY);
+          overallBounds.maxY = Math.max(overallBounds.maxY, bounds.maxY);
+          overallBounds.maxX = bounds.maxX + shiftX;
+        }
+
+        currentXOffset = overallBounds.maxX + nodeSize.width + nodeGap.x * 2;
+      }
+    });
+
+    allLinks.forEach(link => {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', link.d);
+      path.setAttribute('fill', 'none'); path.setAttribute('stroke', 'rgb(156 163 175)'); path.setAttribute('stroke-width', '2');
+      treeContainer.appendChild(path);
+    });
+
+    allNodes.forEach(node => {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.classList.add('node');
+      g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+      g.dataset.id = node.id;
+      g.addEventListener('click', () => openPersonModal(node.id));
+      const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+      foreignObject.setAttribute('width', nodeSize.width);
+      foreignObject.setAttribute('height', nodeSize.height);
+      const ageDisplay = getAgeDisplay(node.person, true);
+      const borderColor = node.person.isDeceased ? 'border-slate-400' : 'border-[var(--accent-color)]';
+      const avatarSrc = node.person.photoUrl || generateAvatar(node.person);
+      foreignObject.innerHTML = `
+        <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full p-2 rounded-lg soft-shadow node-card bg-white dark:bg-slate-800 border-2 ${borderColor} flex items-center space-x-2 cursor-pointer">
+          <img src="${avatarSrc}" class="w-12 h-12 rounded-full object-cover shrink-0" alt="${node.person.name}の写真">
+          <div class="flex-1 overflow-hidden">
+            <p class="font-bold text-sm truncate">${node.person.name}</p>
+            <p class="text-xs ${node.person.isDeceased ? 'text-slate-400' : 'accent-text'} font-semibold">${ageDisplay}</p>
+          </div>
+        </div>`;
+      g.appendChild(foreignObject);
+      treeContainer.appendChild(g);
+    });
+
+    if (overallBounds) {
+      const treeWidth = overallBounds.maxX - overallBounds.minX + nodeSize.width;
+      const treeHeight = overallBounds.maxY - overallBounds.minY + nodeSize.height;
+      const padding = 50;
+      const svgWidth = treeSvg.clientWidth;
+      const svgHeight = treeSvg.clientHeight;
+      if (treeWidth > 0 && treeHeight > 0 && svgWidth > 0 && svgHeight > 0) {
+        const scaleX = svgWidth / (treeWidth + padding * 2);
+        const scaleY = svgHeight / (treeHeight + padding * 2);
+        const scale = Math.min(scaleX, scaleY, 1);
+        const viewBoxW = svgWidth / scale;
+        const viewBoxH = svgHeight / scale;
+        const viewBoxX = overallBounds.minX - (viewBoxW - treeWidth) / 2;
+        const viewBoxY = overallBounds.minY - (viewBoxH - treeHeight) / 2;
+        treeSvg.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${viewBoxW} ${viewBoxH}`);
+      }
+    }
+  }
+
+  // --- 6. UIイベントリスナー ---
+  function setupEventListeners() {
+    document.getElementById('view-toggle').addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') switchView(e.target.dataset.view);
+    });
+
+    [personListContainer, personAgeListContainer, treeContainer].forEach(container => {
+      container.addEventListener('click', e => {
+        const card = e.target.closest('[data-id]');
+        if (card) openPersonModal(card.dataset.id);
+      });
+    });
+
+    document.getElementById('add-person-list-btn').addEventListener('click', () => openPersonModal());
+    document.getElementById('settings-button').addEventListener('click', openSettingsModal);
+    document.getElementById('close-modal-button').addEventListener('click', closePersonModal);
+    document.getElementById('cancel-modal-button').addEventListener('click', closePersonModal);
+    document.getElementById('close-settings-button').addEventListener('click', closeSettingsModal);
+    personForm.addEventListener('submit', handleFormSubmit);
+    document.getElementById('delete-person-button').addEventListener('click', handleDeletePerson);
+    document.getElementById('delete-photo-btn').addEventListener('click', handleDeletePhoto);
+    searchBox.addEventListener('input', render);
+
+    document.querySelectorAll('input[name="theme"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        settings.theme = e.target.value;
+        applyTheme();
+        localStorage.setItem('familyTreeSettings', JSON.stringify(settings));
+      });
+    });
+
+    document.getElementById('add-category-btn').addEventListener('click', addCategory);
+    document.getElementById('category-list').addEventListener('click', handleDeleteCategory);
+    categoryFilter.addEventListener('change', render);
+    document.getElementById('sort-order').addEventListener('change', render);
+
+    document.getElementById('isDeceased').addEventListener('change', (e) => {
+      document.getElementById('death-date-container').classList.toggle('hidden', !e.target.checked);
+    });
+
+    document.getElementById('photoFile').addEventListener('change', handlePhotoFileSelect);
+
+    // SVG Pan/Zoom
+    let isPanning = false, startPoint = { x: 0, y: 0 }, viewBox = { x: 0, y: 0, w: 0, h: 0 };
+    treeSvg.addEventListener('mousedown', (e) => { if (e.target.closest('foreignObject')) return; isPanning = true; startPoint = { x: e.clientX, y: e.clientY }; const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,treeSvg.clientWidth,treeSvg.clientHeight]; viewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]}; });
+    treeSvg.addEventListener('mousemove', (e) => { if (!isPanning) return; const dx = (startPoint.x - e.clientX) * (viewBox.w / treeSvg.clientWidth); const dy = (startPoint.y - e.clientY) * (viewBox.h / treeSvg.clientHeight); treeSvg.setAttribute('viewBox', `${viewBox.x + dx} ${viewBox.y + dy} ${viewBox.w} ${viewBox.h}`); });
+    treeSvg.addEventListener('mouseup', () => isPanning = false);
+    treeSvg.addEventListener('mouseleave', () => isPanning = false);
+    treeSvg.addEventListener('wheel', (e) => { e.preventDefault(); const zoomFactor = 1.1; const { clientX, clientY } = e; const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,treeSvg.clientWidth,treeSvg.clientHeight]; let currentViewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]}; const pt = treeSvg.createSVGPoint(); pt.x = clientX; pt.y = clientY; const point = pt.matrixTransform(treeSvg.getScreenCTM().inverse()); const newW = e.deltaY > 0 ? currentViewBox.w * zoomFactor : currentViewBox.w / zoomFactor; const newH = e.deltaY > 0 ? currentViewBox.h * zoomFactor : currentViewBox.h / zoomFactor; currentViewBox.x += (point.x-currentViewBox.x)*(1-newW/currentViewBox.w); currentViewBox.y += (point.y-currentViewBox.y)*(1-newH/currentViewBox.h); currentViewBox.w = newW; currentViewBox.h = newH; treeSvg.setAttribute('viewBox', `${currentViewBox.x} ${currentViewBox.y} ${currentViewBox.w} ${currentViewBox.h}`); });
+  }
+
+  // --- 7. モーダルとフォームの処理 ---
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    const saveButton = document.getElementById('save-person-button');
+    saveButton.disabled = true;
+    saveButton.textContent = '保存中...';
+
+    let id = document.getElementById('id').value;
+    const isNew = !id;
+    if (isNew) id = peopleCollection.doc().id;
+
+    const oldPhotoUrl = findPersonById(id)?.photoUrl || null;
+    let newPhotoUrl = null;
+
+    try {
+      const birthdate = getDateFromSelectors('birthdate-container');
+      if (!birthdate) throw new Error('生年月日を正しく入力してください。');
+
+      if (currentFileUpload) newPhotoUrl = await uploadPhoto(id, currentFileUpload);
+
+      const personData = {
+        id,
+        name: document.getElementById('name').value,
+        kana: document.getElementById('kana').value,
+        birthdate,
+        gender: document.getElementById('gender').value,
+        fatherId: document.getElementById('fatherId').value || null,
+        motherId: document.getElementById('motherId').value || null,
+        spouseId: document.getElementById('spouseId').value || null,
+        isDeceased: document.getElementById('isDeceased').checked,
+        deathdate: document.getElementById('isDeceased').checked ? getDateFromSelectors('deathdate-container-selectors') : null,
+        photoUrl: newPhotoUrl || oldPhotoUrl,
+        familyCategory: document.getElementById('familyCategory').value,
+        address: document.getElementById('address').value,
+        memo: document.getElementById('memo').value,
+        company: document.getElementById('company').value,
+        comment: document.getElementById('comment').value,
+        lineId: document.getElementById('lineId').value || null,
+        weddingDate: getDateFromSelectors('weddingDate-container')
+      };
+
+      await savePerson(personData);
+
+      if (newPhotoUrl && oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/') && newPhotoUrl !== oldPhotoUrl) {
+        try { await storage.refFromURL(oldPhotoUrl).delete(); } catch (error) { console.warn("古い写真の削除に失敗:", error); }
+      }
+
+      if (personData.spouseId) {
+        const spouse = findPersonById(personData.spouseId);
+        if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) {
+          const updatedSpouse = { ...spouse, spouseId: personData.id, id: spouse.id };
+          if(personData.weddingDate) updatedSpouse.weddingDate = personData.weddingDate;
+          await savePerson(updatedSpouse);
+        }
+      }
+
+      closePersonModal();
+
+    } catch (error) {
+      console.error("保存に失敗しました:", error);
+      alert(error.message || "保存に失敗しました。");
+
+      if (newPhotoUrl) {
+        try { await storage.refFromURL(newPhotoUrl).delete(); }
+        catch (rollbackError) { console.error("ロールバック失敗:", rollbackError); }
+      }
+    } finally {
+      saveButton.disabled = false;
+      saveButton.textContent = '保存';
+      currentFileUpload = null;
+    }
+  }
+
+  async function handleDeletePhoto() {
+    const id = document.getElementById('id').value;
+    if (!id) return;
+    const person = findPersonById(id);
+    const photoUrl = person?.photoUrl;
+    if (photoUrl && confirm('この写真を削除しますか？')) {
+      try {
+        if (photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+          await storage.refFromURL(photoUrl).delete();
+        }
+        await savePerson({ id: id, photoUrl: null });
+        document.getElementById('photoUrl').value = '';
+        document.getElementById('photoPreview').src = generateAvatar(person);
+        document.getElementById('delete-photo-btn').classList.add('hidden');
+      } catch(error) {
+        console.error("写真の削除に失敗しました:", error);
+        alert("写真の削除に失敗しました。");
+      }
+    }
+  }
+
+  async function handleDeletePerson() {
+    const id = document.getElementById('id').value;
+    if (!id || !confirm('この人物を本当に削除しますか？関連する情報も更新されます。')) return;
+
+    try {
+      const personToDelete = findPersonById(id);
+      if (personToDelete && personToDelete.photoUrl && personToDelete.photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+        try { await storage.refFromURL(personToDelete.photoUrl).delete(); } catch (error) { console.warn('写真の削除に失敗:', error); }
+      }
+
+      await deletePerson(id);
+
+      const updates = people.filter(p => p.fatherId === id || p.motherId === id || p.spouseId === id)
+        .map(p => {
+          const updated = { ...p, id: p.id };
+          if (p.fatherId === id) updated.fatherId = null;
+          if (p.motherId === id) updated.motherId = null;
+          if (p.spouseId === id) updated.spouseId = null;
+          return savePerson(updated);
+        });
+
+      await Promise.all(updates);
+      closePersonModal();
+    } catch(error) {
+      console.error("削除に失敗しました:", error);
+      alert("削除に失敗しました。");
+    }
+  }
+
+  async function addCategory() {
+    const input = document.getElementById('new-category-input');
+    const newCategory = input.value.trim();
+    if (!newCategory || familyCategories.includes(newCategory)) {
+      alert(newCategory ? 'そのカテゴリーは既に存在します。' : 'カテゴリー名を入力してください。');
+      return;
+    }
+    familyCategories.push(newCategory);
+    await saveCategories();
+    input.value = '';
+    renderCategoryManager();
+  }
+
+  async function handleDeleteCategory(e) {
+    if (e.target.tagName !== 'BUTTON') return;
+    const categoryToDelete = e.target.dataset.category;
+
+    if (categoryToDelete && categoryToDelete !== '（未分類）' && confirm(`「${categoryToDelete}」を削除しますか？このカテゴリーの人物は「（未分類）」に移動します。`)){
+      if (categoryFilter.value === categoryToDelete) categoryFilter.value = 'all';
+
+      const updates = people
+        .filter(p => p.familyCategory === categoryToDelete)
+        .map(p => savePerson({ ...p, id: p.id, familyCategory: '（未分類）' }));
+
+      await Promise.all(updates);
+
+      familyCategories = familyCategories.filter(c => c !== categoryToDelete);
+      await saveCategories();
+      renderCategoryManager();
+    }
+  }
+
+  function handlePhotoFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) { currentFileUpload = null; return; }
+    currentFileUpload = file;
+    const reader = new FileReader();
+    reader.onload = e => document.getElementById('photoPreview').src = e.target.result;
+    reader.readAsDataURL(file);
+    document.getElementById('photoFile').value = null;
+    document.getElementById('delete-photo-btn').classList.remove('hidden');
+  }
+
+  // --- 8. ヘルパー ---
+  function findPersonById(id) { return people.find(p => p.id === id); }
+
+  function switchView(view) {
+    document.querySelectorAll('#view-toggle button').forEach(btn => {
+      btn.classList.toggle('bg-slate-200', btn.dataset.view === view);
+      btn.classList.toggle('dark:bg-slate-700', btn.dataset.view === view);
+    });
+
+    treeViewEl.classList.toggle('hidden', view !== 'tree');
+    ageViewEl.classList.toggle('hidden', view !== 'age');
+    listViewEl.classList.toggle('hidden', view !== 'list');
+
+    const isTree = view === 'tree';
+    searchBox.classList.toggle('hidden', isTree);
+    categoryFilterContainer.classList.toggle('hidden', !isTree);
+    categoryFilterContainer.classList.toggle('flex', isTree);
+    document.getElementById('sort-order').style.display = (view === 'list') ? 'block' : 'none';
+
+    render();
+  }
+
+  function createPersonCard(person) {
+    const card = document.createElement('div');
+    card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex flex-col cursor-pointer ${person.isDeceased ? 'deceased-card' : ''}`;
+    card.dataset.id = person.id;
+
+    const ageDisplay = getAgeDisplay(person, false);
+    const avatarSrc = person.photoUrl || generateAvatar(person);
+    const commentHTML = person.comment ? `<p class="text-sm font-semibold accent-text truncate">“${person.comment}”</p>` : '';
+
+    card.innerHTML = `
+      <div class="flex items-start space-x-3">
+        <img src="${avatarSrc}" class="w-16 h-16 rounded-full object-cover" alt="${person.name}の写真">
+        <div class="flex-1 overflow-hidden">
+          <div class="flex justify-between items-start">
+            <h3 class="font-bold text-lg truncate">${person.name}</h3>
+            <span class="text-sm font-semibold ${person.isDeceased ? 'text-slate-400' : 'accent-text'} whitespace-nowrap">${ageDisplay}</span>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400 truncate">${person.kana || ''}</p>
+          ${commentHTML}
+        </div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-1 flex-1">
+        <p><strong>誕生日:</strong> ${formatDateJP(person.birthdate)}</p>
+        ${person.company ? `<p><strong>会社:</strong> ${person.company}</p>` : ''}
+        ${person.lineId ? `<p><strong>LINE:</strong> ${person.lineId}</p>` : ''}
+      </div>`;
+    return card;
+  }
+
+  function createAgeViewCard(person) {
+    const card = document.createElement('div');
+    card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex items-center space-x-4 cursor-pointer ${person.isDeceased ? 'deceased-card' : ''}`;
+    card.dataset.id = person.id;
+
+    const ageDisplay = getAgeDisplay(person, true);
+    const avatarSrc = person.photoUrl || generateAvatar(person);
+
+    card.innerHTML = `
+      <img src="${avatarSrc}" class="w-12 h-12 rounded-full object-cover" alt="${person.name}の写真">
+      <div class="flex-1 overflow-hidden">
+        <h3 class="font-bold truncate">${person.name}</h3>
+        <p class="text-sm ${person.isDeceased ? 'text-slate-500 dark:text-slate-400' : 'accent-text'}">${ageDisplay}</p>
+      </div>`;
+    return card;
+  }
+
+  function openPersonModal(personId = null) {
+    personForm.reset();
+    currentFileUpload = null;
+    document.getElementById('uploadProgress').classList.add('hidden');
+    document.getElementById('death-date-container').classList.add('hidden');
+    document.getElementById('delete-photo-btn').classList.add('hidden');
+    populateSelectOptions(personId);
+    populateCategorySelect(document.getElementById('familyCategory'));
+
+    if (personId) {
+      document.getElementById('modal-title').textContent = '個人情報の編集';
+      const person = findPersonById(personId);
+      if (person) {
+        document.getElementById('id').value = person.id;
+        document.getElementById('name').value = person.name;
+        document.getElementById('kana').value = person.kana || '';
+        createDateSelectors('birthdate-container', person.birthdate, true);
+        document.getElementById('gender').value = person.gender || '不明';
+        document.getElementById('fatherId').value = person.fatherId || '';
+        document.getElementById('motherId').value = person.motherId || '';
+        document.getElementById('spouseId').value = person.spouseId || '';
+        document.getElementById('isDeceased').checked = person.isDeceased || false;
+        if (person.isDeceased) {
+          createDateSelectors('deathdate-container-selectors', person.deathdate, false);
+          document.getElementById('death-date-container').classList.remove('hidden');
+        } else {
+          createDateSelectors('deathdate-container-selectors', null, false);
+        }
+        document.getElementById('photoUrl').value = person.photoUrl || '';
+        document.getElementById('photoPreview').src = person.photoUrl || generateAvatar(person);
+        if (person.photoUrl) document.getElementById('delete-photo-btn').classList.remove('hidden');
+        document.getElementById('familyCategory').value = person.familyCategory || '（未分類）';
+        document.getElementById('address').value = person.address || '';
+        document.getElementById('memo').value = person.memo || '';
+        document.getElementById('company').value = person.company || '';
+        document.getElementById('comment').value = person.comment || '';
+        document.getElementById('lineId').value = person.lineId || '';
+        createDateSelectors('weddingDate-container', person.weddingDate, false);
+        document.getElementById('delete-person-button').classList.remove('hidden');
+      }
+    } else {
+      document.getElementById('modal-title').textContent = '新規人物追加';
+      document.getElementById('id').value = '';
+      createDateSelectors('birthdate-container', null, true);
+      createDateSelectors('deathdate-container-selectors', null, false);
+      createDateSelectors('weddingDate-container', null, false);
+      document.getElementById('delete-person-button').classList.add('hidden');
+      document.getElementById('photoPreview').src = generateAvatar({name: '?'});
+    }
+    personModal.classList.add('flex');
+    personModal.classList.remove('hidden');
+  }
+
+  function closePersonModal() { personModal.classList.add('hidden'); personModal.classList.remove('flex'); }
+  function openSettingsModal() { renderCategoryManager(); settingsModal.classList.add('flex'); settingsModal.classList.remove('hidden'); }
+  function closeSettingsModal() { settingsModal.classList.add('hidden'); settingsModal.classList.remove('flex'); }
+
+  function renderCategoryManager() {
+    const container = document.getElementById('category-list');
+    container.innerHTML = familyCategories.map(cat => `
+      <div class="flex justify-between items-center bg-slate-100 dark:bg-slate-700 p-2 rounded-md">
+        <span>${cat}</span>
+        ${cat !== '（未分類）' ? `<button data-category="${cat}" class="text-red-500 hover:text-red-700 text-lg">&times;</button>` : ''}
+      </div>`).join('');
+  }
+
+  function getAgeDisplay(person, isSimple = false) {
+    if (person.isDeceased) {
+      const ageAtDeath = calculateAge(person.birthdate, person.deathdate);
+      const ageIfAlive = calculateAge(person.birthdate, null);
+      const deceasedText = `享年${ageAtDeath}歳 (${ageIfAlive}歳)`;
+      return isSimple ? deceasedText : `故人 (${deceasedText})`;
+    }
+    return `${calculateAge(person.birthdate, null)}歳`;
+  }
+
+  function calculateAge(birthdate, deathdate = null) {
+    if (!birthdate) return '?';
+    const birth = new Date(birthdate);
+    const end = deathdate ? new Date(deathdate) : new Date();
+    let age = end.getFullYear() - birth.getFullYear();
+    const m = end.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && end.getDate() < birth.getDate())) age--;
+    return Math.max(0, age);
+  }
+
+  function formatDateJP(isoDate) {
+    if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return '';
+    const date = new Date(isoDate + 'T00:00:00');
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}年${month}月${day}日`;
+  }
+
+  function generateAvatar(person) {
+    const name = person.name || '?'; const initial = name.charAt(0).toUpperCase(); let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const colors = ['#f87171','#fb923c','#fbbf24','#a3e635','#4ade80','#34d399','#2dd4bf','#22d3ee','#38bdf8','#60a5fa','#818cf8','#a78bfa','#c084fc','#e879f9','#f472b6'];
+    let color; if (person.gender === '男性') color = colors[Math.abs(hash) % 7 + 8];
+    else if (person.gender === '女性') color = colors[Math.abs(hash) % 7];
+    else color = colors[Math.abs(hash) % colors.length];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}" /><text x="50" y="55" font-family="Noto Sans JP, sans-serif" font-size="50" fill="white" text-anchor="middle" dominant-baseline="middle">${initial}</text></svg>`;
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  }
+
+  function createDateSelectors(containerId, initialDate, isRequired = false) {
+    const container = document.getElementById(containerId); container.innerHTML = '';
+    const yearSelect = document.createElement('select'); const monthSelect = document.createElement('select'); const daySelect = document.createElement('select');
+    if(isRequired) [yearSelect, monthSelect, daySelect].forEach(s => s.required = true);
+
+    yearSelect.innerHTML = `<option value="">年</option>`; monthSelect.innerHTML = `<option value="">月</option>`; daySelect.innerHTML = `<option value="">日</option>`;
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear + 5; y >= 1900; y--) yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+    for (let m = 1; m <= 12; m++) monthSelect.innerHTML += `<option value="${m}">${m}</option>`;
+
+    container.append(yearSelect, monthSelect, daySelect);
+
+    const updateDays = () => {
+      const year = parseInt(yearSelect.value); const month = parseInt(monthSelect.value); const currentDay = daySelect.value;
+      daySelect.innerHTML = `<option value="">日</option>`;
+      if (year && month) {
+        const daysInMonth = new Date(year, month, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) daySelect.innerHTML += `<option value="${d}">${d}</option>`;
+        daySelect.value = currentDay;
+      }
+    };
+
+    yearSelect.addEventListener('change', updateDays); monthSelect.addEventListener('change', updateDays);
+
+    if (initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate)) {
+      const [year, month, day] = initialDate.split('-').map(Number);
+      yearSelect.value = year; monthSelect.value = month; updateDays(); daySelect.value = day;
+    }
+  }
+
+  function getDateFromSelectors(containerId) {
+    const container = document.getElementById(containerId);
+    const [year, month, day] = Array.from(container.querySelectorAll('select')).map(s => s.value);
+    if (year && month && day) return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return null;
+  }
+
+  function populateSelectOptions(currentPersonId = null) {
+    const selects = ['fatherId', 'motherId', 'spouseId'];
+    const sortedPeople = [...people].sort((a, b) => (a.kana || a.name).localeCompare(b.kana || b.name, 'ja'));
+
+    selects.forEach(id => {
+      const select = document.getElementById(id); if (!select) return;
+      const currentValue = select.value;
+      select.innerHTML = '<option value="">未選択</option>';
+      sortedPeople.forEach(p => {
+        if (id !== 'rootPersonId' && p.id === currentPersonId) return;
+        const option = document.createElement('option'); option.value = p.id; option.textContent = p.name;
+        select.appendChild(option);
+      });
+      select.value = currentValue;
+    });
+  }
+
+  function populateCategorySelect(selectElement) {
+    const currentValue = selectElement.value; selectElement.innerHTML = '';
+    familyCategories.forEach(cat => {
+      const option = document.createElement('option'); option.value = cat; option.textContent = cat;
+      selectElement.appendChild(option);
+    });
+    selectElement.value = currentValue || '（未分類）';
+  }
+
+  function renderCategoryFilter() {
+    const currentValue = categoryFilter.value; categoryFilter.innerHTML = '<option value="all">すべてのファミリー</option>';
+    familyCategories.forEach(cat => {
+      if (cat === '（未分類）') return;
+      const option = document.createElement('option'); option.value = cat; option.textContent = cat;
+      categoryFilter.appendChild(option);
+    });
+    const uncategorizedOption = document.createElement('option'); uncategorizedOption.value = '（未分類）'; uncategorizedOption.textContent = '（未分類）';
+    categoryFilter.appendChild(uncategorizedOption);
+    categoryFilter.value = currentValue;
+  }
+
+  function applyTheme() { document.documentElement.classList.toggle('dark', settings.theme === 'dark'); }
+  function applySettings() {
+    applyTheme();
+    const themeRadio = document.querySelector(`input[name="theme"][value="${settings.theme}"]`);
+    if (themeRadio) themeRadio.checked = true;
+  }
+
+  function buildTreeLayout(rootPerson, personData, visited) {
+    const findPerson = (id) => personData.find(p => p.id === id);
+    const getChildren = (id) => personData.filter(p => p.fatherId === id || p.motherId === id);
+    let nodes = [], links = [], positions = {}, generationLevels = {}, bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+    function traverse(person, level) {
+      if (!person || visited.has(person.id)) return;
+      visited.add(person.id);
+      if (!generationLevels[level]) generationLevels[level] = [];
+      if (!generationLevels[level].includes(person.id)) generationLevels[level].push(person.id);
+      if(person.fatherId) traverse(findPerson(person.fatherId), level - 1);
+      if(person.motherId) traverse(findPerson(person.motherId), level - 1);
+      if(person.spouseId) traverse(findPerson(person.spouseId), level);
+      getChildren(person.id).forEach(child => traverse(child, level + 1));
+    }
+
+    traverse(rootPerson, 0);
+
+    const validLevels = Object.keys(generationLevels).map(Number).filter(isFinite);
+    if (validLevels.length === 0) return { nodes:[], links:[], bounds, visited };
+    const minLevel = Math.min(...validLevels);
+
+    Object.keys(generationLevels).sort((a,b) => a-b).forEach(level => {
+      const y = (level - minLevel) * (nodeSize.height + nodeGap.y);
+      const levelNodes = generationLevels[level];
+      let x = - (levelNodes.length * (nodeSize.width + nodeGap.x) - nodeGap.x) / 2;
+      levelNodes.forEach(id => {
+        if (!positions[id]) {
+          const person = findPerson(id);
+          if (person.spouseId && positions[person.spouseId]) x = positions[person.spouseId].x + nodeSize.width + nodeGap.x;
+          positions[id] = { x, y };
+          x += nodeSize.width + nodeGap.x;
+        }
+      });
+    });
+
+    const drawnLinks = new Set();
+    Object.keys(positions).forEach(id => {
+      const person = findPerson(id), pos = positions[id];
+      if (!person || !pos) return;
+
+      nodes.push({ id, person, x: pos.x, y: pos.y });
+      bounds.minX = Math.min(bounds.minX, pos.x); bounds.maxX = Math.max(bounds.maxX, pos.x);
+      bounds.minY = Math.min(bounds.minY, pos.y); bounds.maxY = Math.max(bounds.maxY, pos.y);
+
+      if(person.spouseId && positions[person.spouseId] && person.id < person.spouseId) {
+        const spousePos = positions[person.spouseId];
+        if (Math.abs(pos.y - spousePos.y) < nodeGap.y / 2) {
+          links.push({d: `M ${pos.x + nodeSize.width} ${pos.y + nodeSize.height / 2} H ${spousePos.x}`});
+        }
+      }
+
+      const children = getChildren(person.id);
+      if (children.length > 0) {
+        const coupleKey = person.spouseId ? [person.id, person.spouseId].sort().join('-') : id;
+        if (!drawnLinks.has(coupleKey)) {
+          const childrenPos = children.map(c => positions[c.id]).filter(Boolean);
+          if (childrenPos.length > 0) {
+            let startX = pos.x + nodeSize.width / 2;
+            if (person.spouseId && positions[person.spouseId] && Math.abs(pos.y - positions[person.spouseId].y) < nodeGap.y / 2) {
+              startX = (pos.x + positions[person.spouseId].x + nodeSize.width) / 2;
+            }
+            const startY = pos.y + nodeSize.height;
+            const midY = startY + nodeGap.y / 2;
+
+            links.push({ d: `M ${startX} ${startY} V ${midY}` });
+
+            const childrenXPoints = childrenPos.map(p => p.x + nodeSize.width / 2);
+            const minChildX = Math.min(...childrenXPoints);
+            const maxChildX = Math.max(...childrenXPoints);
+
+            if(children.length > 1) links.push({ d: `M ${minChildX} ${midY} H ${maxChildX}`});
+
+            childrenPos.forEach((childPos, i) => { links.push({ d: `M ${childrenXPoints[i]} ${midY} V ${childPos.y}` }); });
+
+            drawnLinks.add(coupleKey);
+          }
+        }
+      }
+    });
+    return { nodes, links, bounds, visited };
+  }
 
 });
 </script>
