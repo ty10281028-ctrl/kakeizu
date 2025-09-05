@@ -157,7 +157,7 @@
                         <label for="comment" class="block text-sm font-medium text-slate-600 dark:text-slate-300">一言コメント</label>
                         <input type="text" id="comment" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
                     </div>
-                     <div class="md:col-span-2">
+                    <div class="md:col-span-2">
                         <label for="lineId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">LINE ID</label>
                         <input type="text" id="lineId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
                     </div>
@@ -289,14 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
         applySettings();
         switchView('list');
 
-        // カテゴリー情報のリアルタイム監視
         categoriesDoc.onSnapshot(doc => {
             familyCategories = doc.exists ? doc.data().list || ['（未分類）'] : ['（未分類）'];
             renderCategoryFilter();
             if(!initialLoad) render();
         }, error => console.error("カテゴリーの読み込みエラー:", error));
 
-        // 全ての人物情報のリアルタイム監視
         peopleCollection.onSnapshot(snapshot => {
             people = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             render();
@@ -323,8 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
         progress.classList.remove('hidden');
         progress.value = 0;
         
-        const fileName = `photo_${id}_${Date.now()}_${file.name}`;
-        const storageRef = storage.ref(`photos/${fileName}`);
+        const fileName = `photos/${id}/${Date.now()}_${file.name}`;
+        const storageRef = storage.ref(fileName);
         const uploadTask = storageRef.put(file);
 
         return new Promise((resolve, reject) => {
@@ -455,8 +453,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const parts = cmd.trim().split(' ');
                         const command = parts[0];
                         const values = parts.slice(1).map(parseFloat);
-                        if (command === 'M' || command === 'H') {
-                            values[0] += currentXOffset;
+                        if (command === 'M' || command === 'H' || command === 'V') {
+                            if(command !== 'V') values[0] += currentXOffset;
+                        } else { // For commands like L, C, etc. with x,y pairs
+                             for(let i=0; i<values.length; i+=2) {
+                                values[i] += currentXOffset;
+                             }
                         }
                         return `${command} ${values.join(' ')}`;
                     });
@@ -590,26 +592,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 id = peopleCollection.doc().id;
             }
 
-            // 写真が変更される場合、古い写真をStorageから削除する
-            if (currentFileUpload) {
-                const existingPerson = findPersonById(id);
-                if (existingPerson && existingPerson.photoUrl && existingPerson.photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
-                    try {
-                        await storage.refFromURL(existingPerson.photoUrl).delete();
-                    } catch (error) {
-                        console.warn("古い写真の削除に失敗しました:", error);
-                    }
-                }
+            const birthdate = getDateFromSelectors('birthdate-container');
+            if (!birthdate) {
+                throw new Error('生年月日を正しく入力してください。');
             }
             
             let photoUrl = document.getElementById('photoUrl').value;
             if (currentFileUpload) {
-                photoUrl = await uploadPhoto(id, currentFileUpload);
-            }
-
-            const birthdate = getDateFromSelectors('birthdate-container');
-            if (!birthdate) {
-                throw new Error('生年月日を正しく入力してください。');
+                // Find the original person data to get the old photo URL
+                const existingPerson = findPersonById(id);
+                const oldPhotoUrl = existingPerson ? existingPerson.photoUrl : null;
+                
+                // Upload the new photo first
+                const newPhotoUrl = await uploadPhoto(id, currentFileUpload);
+                photoUrl = newPhotoUrl; // Set the URL for saving to the new one
+                
+                // After successful upload, delete the old photo if it exists
+                if (oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+                    try {
+                        await storage.refFromURL(oldPhotoUrl).delete();
+                    } catch (error) {
+                        console.warn("古い写真の削除に失敗しました:", error);
+                    }
+                }
             }
 
             const personData = {
@@ -1031,7 +1036,6 @@ document.addEventListener('DOMContentLoaded', () => {
             levelNodes.forEach(id => { 
                 if (!positions[id]) {
                     const person = findPerson(id);
-                    let spouseOffset = 0;
                     if (person.spouseId && positions[person.spouseId]) {
                          x = positions[person.spouseId].x + nodeSize.width + nodeGap.x;
                     }
@@ -1052,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if(person.spouseId && positions[person.spouseId] && person.id < person.spouseId) {
                 const spousePos = positions[person.spouseId];
-                if (Math.abs(pos.y - spousePos.y) < nodeGap.y / 2) links.push({d: `M ${pos.x + nodeSize.width} ${pos.y + nodeSize.height / 2} H ${spousePos.x}`});
+                if (Math.abs(pos.y - spousePos.y) < nodeGap.y / 2) links.push({d: `M ${pos.x + nodeSize.width / 2} ${pos.y + nodeSize.height / 2} H ${spousePos.x - nodeSize.width / 2}`});
             }
             
             const children = getChildren(person.id);
@@ -1061,21 +1065,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!drawnLinks.has(coupleKey)) {
                     const childrenPos = children.map(c => positions[c.id]).filter(Boolean);
                     if (childrenPos.length > 0) {
-                        let startX = pos.x + nodeSize.width / 2;
+                        let startX = pos.x;
                         if (person.spouseId && positions[person.spouseId] && Math.abs(pos.y - positions[person.spouseId].y) < nodeGap.y / 2) {
-                            startX = (pos.x + positions[person.spouseId].x) / 2 + nodeSize.width / 2;
+                            startX = (pos.x + positions[person.spouseId].x) / 2;
                         }
                         const startY = pos.y + nodeSize.height, midY = startY + nodeGap.y / 2;
                         
                         links.push({ d: `M ${startX} ${startY} V ${midY}` });
+                        
+                        const childrenXPoints = childrenPos.map(p => p.x);
+                        const minChildX = Math.min(...childrenXPoints);
+                        const maxChildX = Math.max(...childrenXPoints);
+                        links.push({ d: `M ${minChildX} ${midY} H ${maxChildX}`});
+                        
                         childrenPos.forEach(childPos => {
-                            links.push({ d: `M ${childPos.x + nodeSize.width / 2} ${midY} V ${childPos.y}` });
+                            links.push({ d: `M ${childPos.x} ${midY} V ${childPos.y}` });
                         });
-
-                        const allXPoints = [startX, ...childrenPos.map(p => p.x + nodeSize.width / 2)];
-                        const minX = Math.min(...allXPoints);
-                        const maxX = Math.max(...allXPoints);
-                        links.push({ d: `M ${minX} ${midY} H ${maxX}` });
 
                         drawnLinks.add(coupleKey);
                     }
