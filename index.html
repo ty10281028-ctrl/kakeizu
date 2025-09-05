@@ -585,36 +585,24 @@ document.addEventListener('DOMContentLoaded', () => {
         saveButton.disabled = true;
         saveButton.textContent = '保存中...';
 
-        try {
-            let id = document.getElementById('id').value;
-            const isNew = !id;
-            if (isNew) {
-                id = peopleCollection.doc().id;
-            }
+        let id = document.getElementById('id').value;
+        const isNew = !id;
+        if (isNew) {
+            id = peopleCollection.doc().id;
+        }
+        
+        const oldPhotoUrl = findPersonById(id)?.photoUrl || null;
+        let newPhotoUrl = null;
 
+        try {
             const birthdate = getDateFromSelectors('birthdate-container');
             if (!birthdate) {
                 throw new Error('生年月日を正しく入力してください。');
             }
             
-            let photoUrl = document.getElementById('photoUrl').value;
+            // Step 1: Upload new photo if it exists
             if (currentFileUpload) {
-                // Find the original person data to get the old photo URL
-                const existingPerson = findPersonById(id);
-                const oldPhotoUrl = existingPerson ? existingPerson.photoUrl : null;
-                
-                // Upload the new photo first
-                const newPhotoUrl = await uploadPhoto(id, currentFileUpload);
-                photoUrl = newPhotoUrl; // Set the URL for saving to the new one
-                
-                // After successful upload, delete the old photo if it exists
-                if (oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
-                    try {
-                        await storage.refFromURL(oldPhotoUrl).delete();
-                    } catch (error) {
-                        console.warn("古い写真の削除に失敗しました:", error);
-                    }
-                }
+                newPhotoUrl = await uploadPhoto(id, currentFileUpload);
             }
 
             const personData = {
@@ -628,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 spouseId: document.getElementById('spouseId').value || null,
                 isDeceased: document.getElementById('isDeceased').checked,
                 deathdate: document.getElementById('isDeceased').checked ? getDateFromSelectors('deathdate-container-selectors') : null,
-                photoUrl: photoUrl || null,
+                photoUrl: newPhotoUrl || oldPhotoUrl || null, // Use new, fallback to old, otherwise null
                 familyCategory: document.getElementById('familyCategory').value,
                 address: document.getElementById('address').value,
                 memo: document.getElementById('memo').value,
@@ -638,20 +626,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 weddingDate: getDateFromSelectors('weddingDate-container')
             };
             
+            // Step 2: Save data to Firestore
             await savePerson(personData);
 
+            // Step 3: After successful save, delete the old photo from Storage IF a new one was uploaded
+            if (newPhotoUrl && oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+                 if (newPhotoUrl !== oldPhotoUrl) {
+                    try {
+                        await storage.refFromURL(oldPhotoUrl).delete();
+                    } catch (error) {
+                        console.warn("古い写真の削除に失敗しましたが、新しい情報は保存されています:", error);
+                    }
+                }
+            }
+            
+            // Step 4: Handle spouse linking
             if (personData.spouseId) {
                 const spouse = findPersonById(personData.spouseId);
                 if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) {
-                    const updatedSpouse = { ...spouse, spouseId: personData.id };
+                    const updatedSpouse = { ...spouse, spouseId: personData.id, id: spouse.id };
                     if(personData.weddingDate) updatedSpouse.weddingDate = personData.weddingDate;
                     await savePerson(updatedSpouse);
                 }
             }
+            
             closePersonModal();
+
         } catch (error) {
             console.error("保存に失敗しました:", error);
             alert(error.message || "保存に失敗しました。");
+            
+            // If upload succeeded but Firestore save failed, delete the newly uploaded photo to avoid orphans
+            if (newPhotoUrl) {
+                try {
+                    await storage.refFromURL(newPhotoUrl).delete();
+                    console.log("ロールバック: 不要になった新しい写真を削除しました。");
+                } catch (rollbackError) {
+                    console.error("ロールバック失敗: 不要な写真がStorageに残っている可能性があります。", rollbackError);
+                }
+            }
         } finally {
             saveButton.disabled = false;
             saveButton.textContent = '保存';
