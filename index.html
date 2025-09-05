@@ -5,47 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>家系図 Webアプリ (公開設定版)</title>
 
-<!-- Tailwind CDN -->
+<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Google Fonts -->
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
 
 <style>
-  :root { --accent-color:#38bdf8; --accent-color-dark:#0ea5e9; }
-  body { font-family:'Noto Sans JP', sans-serif; }
-  .accent-bg{ background-color:var(--accent-color); }
-  .accent-bg-hover:hover{ background-color:var(--accent-color-dark); }
-  .accent-text{ color:var(--accent-color); }
-  .accent-border{ border-color:var(--accent-color); }
-  .soft-shadow{ box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1),0 2px 4px -2px rgb(0 0 0 / 0.1); }
-  .modal-backdrop{ background-color:rgba(0,0,0,.5); }
-  #tree-svg{ cursor:grab; }
-  #tree-svg:active{ cursor:grabbing; }
-  .node .node-card{ transition:all .2s ease-in-out; }
-  .node:hover .node-card{ transform:translateY(-4px); box-shadow:0 10px 15px -3px rgb(0 0 0 / .1),0 4px 6px -4px rgb(0 0 0 / .1); }
-  .deceased-card{ opacity:.8; }
-  /* CDN版では @apply が使えないので純CSSで */
-  .date-selector-group select{
-    margin-top:.25rem; display:block; width:100%;
-    padding:.5rem .75rem; background:#fff; color:inherit;
-    border:1px solid #cbd5e1; border-radius:.375rem;
-    font-size:.875rem; line-height:1.25rem;
-    box-shadow:0 1px 2px rgb(0 0 0 / 0.05);
+  :root { --accent-color: #38bdf8; --accent-color-dark: #0ea5e9; }
+  body { font-family: 'Noto Sans JP', sans-serif; }
+  .accent-bg { background-color: var(--accent-color); }
+  .accent-bg-hover:hover { background-color: var(--accent-color-dark); }
+  .accent-text { color: var(--accent-color); }
+  .accent-border { border-color: var(--accent-color); }
+  .soft-shadow { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+  .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
+  #tree-svg { cursor: grab; }
+  #tree-svg:active { cursor: grabbing; }
+  .node .node-card { transition: all 0.2s ease-in-out; }
+  .node:hover .node-card { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+  /* @apply はビルド不要の素のCSSに置換 */
+  .date-selector-group select {
+    margin-top: .25rem; display:block; width:100%;
+    padding:.5rem .75rem; background:#fff; border:1px solid #cbd5e1;
+    border-radius:.375rem; font-size:.875rem; box-shadow:0 1px 2px rgba(0,0,0,.05);
   }
-  .dark .date-selector-group select{ background:#334155; border-color:#475569; color:#e2e8f0; }
-  .date-selector-group select:focus{ outline:none; border-color:var(--accent-color); box-shadow:0 0 0 1px var(--accent-color); }
+  .deceased-card { opacity: .8; }
 </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 <div id="app" class="h-screen w-screen flex flex-col">
   <!-- Header -->
   <header class="bg-white dark:bg-slate-800 soft-shadow z-10 p-2 sm:p-4 flex items-center justify-between">
     <h1 class="text-xl sm:text-2xl font-bold text-slate-700 dark:text-slate-100">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block -mt-1 mr-2 accent-text"><path d="M3 6v12"></path><path d="M18 6v12"></path><path d="M10.5 6h3"></path><path d="M10.5 18h3"></path><path d="M6 12h12"></path></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="inline-block -mt-1 mr-2 accent-text" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6v12"></path><path d="M18 6v12"></path><path d="M10.5 6h3"></path><path d="M10.5 18h3"></path><path d="M6 12h12"></path></svg>
       家系図
     </h1>
     <div class="flex items-center space-x-2 sm:space-x-4">
@@ -60,12 +56,12 @@
         <button data-view="tree" class="px-3 py-1 text-sm rounded-full">家系図</button>
       </div>
       <button id="settings-button" title="設定" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Main -->
   <main class="flex-1 relative overflow-hidden">
     <!-- List View -->
     <div id="list-view" class="w-full h-full p-4 overflow-y-auto">
@@ -96,9 +92,7 @@
 
     <!-- Tree View -->
     <div id="tree-view" class="w-full h-full hidden">
-      <svg id="tree-svg" class="w-full h-full">
-        <g id="tree-container"></g>
-      </svg>
+      <svg id="tree-svg" class="w-full h-full"><g id="tree-container"></g></svg>
     </div>
   </main>
 </div>
@@ -106,7 +100,7 @@
 <!-- Person Modal -->
 <div id="person-modal" class="fixed inset-0 z-50 items-center justify-center hidden p-4 modal-backdrop">
   <div class="bg-white dark:bg-slate-800 rounded-2xl soft-shadow w-full max-w-2xl max-h-[90vh] flex flex-col">
-    <div class="flex justify-between items-center p-4 border-b border-slate-2 00 dark:border-slate-700">
+    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
       <h2 id="modal-title" class="text-xl font-bold">個人情報の編集</h2>
       <button id="close-modal-button" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">&times;</button>
     </div>
@@ -138,7 +132,7 @@
           </div>
           <div>
             <label for="gender" class="block text-sm font-medium text-slate-600 dark:text-slate-300">性別</label>
-            <select id="gender" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm">
+            <select id="gender" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
               <option value="不明">不明</option>
               <option value="男性">男性</option>
               <option value="女性">女性</option>
@@ -146,15 +140,15 @@
           </div>
           <div>
             <label for="fatherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">父親</label>
-            <select id="fatherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+            <select id="fatherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
           </div>
           <div>
             <label for="motherId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">母親</label>
-            <select id="motherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+            <select id="motherId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
           </div>
           <div>
             <label for="spouseId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">配偶者</label>
-            <select id="spouseId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+            <select id="spouseId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">結婚記念日</label>
@@ -162,27 +156,27 @@
           </div>
           <div class="md:col-span-2">
             <label for="familyCategory" class="block text-sm font-medium text-slate-600 dark:text-slate-300">所属カテゴリー</label>
-            <select id="familyCategory" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></select>
+            <select id="familyCategory" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></select>
           </div>
           <div class="md:col-span-2">
             <label for="company" class="block text-sm font-medium text-slate-600 dark:text-slate-300">会社名</label>
-            <input type="text" id="company" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+            <input type="text" id="company" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
           </div>
           <div class="md:col-span-2">
             <label for="comment" class="block text-sm font-medium text-slate-600 dark:text-slate-300">一言コメント</label>
-            <input type="text" id="comment" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+            <input type="text" id="comment" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
           </div>
           <div class="md:col-span-2">
             <label for="lineId" class="block text-sm font-medium text-slate-600 dark:text-slate-300">LINE ID</label>
-            <input type="text" id="lineId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+            <input type="text" id="lineId" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
           </div>
           <div class="md:col-span-2">
             <label for="address" class="block text-sm font-medium text-slate-600 dark:text-slate-300">住所</label>
-            <textarea id="address" rows="2" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></textarea>
+            <textarea id="address" rows="2" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></textarea>
           </div>
           <div class="md:col-span-2">
             <label for="memo" class="block text-sm font-medium text-slate-600 dark:text-slate-300">メモ</label>
-            <textarea id="memo" rows="3" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm"></textarea>
+            <textarea id="memo" rows="3" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"></textarea>
           </div>
           <div class="md:col-span-2 flex items-start space-x-4">
             <label for="isDeceased" class="flex items-center space-x-2 pt-1">
@@ -219,35 +213,30 @@
         <h3 class="text-lg font-semibold mb-2">カテゴリー管理</h3>
         <div id="category-list" class="space-y-2 mb-2"></div>
         <div class="flex space-x-2">
-          <input type="text" id="new-category-input" placeholder="新しいカテゴリー名" class="flex-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm">
+          <input type="text" id="new-category-input" placeholder="新しいカテゴリー名" class="flex-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]">
           <button id="add-category-btn" class="accent-bg text-white px-4 py-2 rounded-md text-sm font-semibold accent-bg-hover transition-colors">追加</button>
         </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">テーマ</label>
         <div class="mt-2 flex items-center space-x-4">
-          <label class="flex items-center">
-            <input type="radio" name="theme" value="light" class="form-radio h-4 w-4 text-[var(--accent-color)]">
-            <span class="ml-2 text-sm">ライト</span>
-          </label>
-          <label class="flex items-center">
-            <input type="radio" name="theme" value="dark" class="form-radio h-4 w-4 text-[var(--accent-color)]">
-            <span class="ml-2 text-sm">ダーク</span>
-          </label>
+          <label class="flex items-center"><input type="radio" name="theme" value="light" class="form-radio h-4 w-4 text-[var(--accent-color)]"><span class="ml-2 text-sm">ライト</span></label>
+          <label class="flex items-center"><input type="radio" name="theme" value="dark" class="form-radio h-4 w-4 text-[var(--accent-color)]"><span class="ml-2 text-sm">ダーク</span></label>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Firebase v8 Scripts -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+<!-- ★ 追加：Auth SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-  // --- 1. Firebase の初期化 ---
+  // --- Firebase 初期化 ---
   const firebaseConfig = {
     apiKey: "AIzaSyAyWHeePZ45__X3WIodJCkNsoh6u8gQQCI",
     authDomain: "my-kakeizu-app.firebaseapp.com",
@@ -263,19 +252,15 @@
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // 認証してから init() を実行
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      console.log('[auth] signed in:', user.uid, 'anonymous:', user.isAnonymous);
-      init();
-    } else {
-      firebase.auth().signInAnonymously().catch(err => {
-        console.error('匿名認証エラー:', err);
-        alert('匿名サインインに失敗しました: ' + (err.message || err));
-      });
-    }
-  });
+document.addEventListener('DOMContentLoaded', async () => {
+  // --- まず匿名サインイン（Storage 書き込みのため必須）---
+  try {
+    await firebase.auth().signInAnonymously();
+    console.log('Signed in anonymously:', firebase.auth().currentUser && firebase.auth().currentUser.uid);
+  } catch (e) {
+    console.error('Anonymous sign-in failed:', e);
+    alert('認証に失敗しました。ネットワーク/コンソールのエラーをご確認ください。');
+  }
 
   // --- 2. グローバル変数とDOM要素 ---
   const peopleCollection = db.collection('people');
@@ -307,41 +292,49 @@ document.addEventListener('DOMContentLoaded', () => {
   function init() {
     const savedSettings = localStorage.getItem('familyTreeSettings');
     if (savedSettings) settings = { ...settings, ...JSON.parse(savedSettings) };
+
     setupEventListeners();
     applySettings();
     switchView('list');
 
     categoriesDoc.onSnapshot(doc => {
-      familyCategories = doc.exists ? doc.data().list || ['（未分類）'] : ['（未分類）'];
+      familyCategories = doc.exists ? (doc.data().list || ['（未分類）']) : ['（未分類）'];
       renderCategoryFilter();
-      if(!initialLoad) render();
-    }, error => console.error("カテゴリーの読み込みエラー:", error));
+      if (!initialLoad) render();
+    }, err => console.error('カテゴリーの読み込みエラー:', err));
 
     peopleCollection.onSnapshot(snapshot => {
-      people = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      people = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       render();
       initialLoad = false;
-    }, error => console.error("人物リストの読み込みエラー:", error));
+    }, err => console.error('人物リストの読み込みエラー:', err));
   }
 
-  // --- 4. Firestoreとのデータ連携 ---
+  // --- 4. Firestore 連携 ---
   async function savePerson(personData) {
     const { id, ...dataToSave } = personData;
     await peopleCollection.doc(id).set(dataToSave, { merge: true });
   }
-  async function deletePerson(personId) { await peopleCollection.doc(personId).delete(); }
-  async function saveCategories() { await categoriesDoc.set({ list: familyCategories }); }
+  async function deletePerson(personId) {
+    await peopleCollection.doc(personId).delete();
+  }
+  async function saveCategories() {
+    await categoriesDoc.set({ list: familyCategories });
+  }
 
   async function uploadPhoto(id, file) {
     const progress = document.getElementById('uploadProgress');
-    progress.classList.remove('hidden'); progress.value = 0;
+    progress.classList.remove('hidden');
+    progress.value = 0;
+
     const fileName = `photos/${id}/${Date.now()}_${file.name}`;
     const storageRef = storage.ref(fileName);
     const uploadTask = storageRef.put(file);
+
     return new Promise((resolve, reject) => {
       uploadTask.on('state_changed',
-        s => { progress.value = (s.bytesTransferred / s.totalBytes) * 100; },
-        error => { console.error("Upload failed:", error); progress.classList.add('hidden'); reject(error); },
+        snap => { progress.value = (snap.bytesTransferred / snap.totalBytes) * 100; },
+        err => { console.error('Upload failed:', err); progress.classList.add('hidden'); reject(err); },
         () => { uploadTask.snapshot.ref.getDownloadURL().then(url => { progress.classList.add('hidden'); resolve(url); }); }
       );
     });
@@ -360,7 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const filter = searchBox.value.toLowerCase();
     const sortOrder = document.getElementById('sort-order').value;
     personListContainer.innerHTML = '';
-    const filteredPeople = people.filter(p => p.name.toLowerCase().includes(filter) || (p.kana || '').toLowerCase().includes(filter));
+    const filteredPeople = people.filter(p =>
+      p.name.toLowerCase().includes(filter) || (p.kana || '').toLowerCase().includes(filter)
+    );
 
     if (filteredPeople.length === 0) {
       personListContainer.innerHTML = `<p class="text-slate-500 text-center py-8">該当する人物が見つかりません。「+ 新規追加」から人物を登録してください。</p>`;
@@ -369,8 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const groupedByCategory = filteredPeople.reduce((acc, person) => {
       const category = person.familyCategory || '（未分類）';
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(person);
+      (acc[category] ||= []).push(person);
       return acc;
     }, {});
 
@@ -386,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
       gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
 
       const peopleInCategory = groupedByCategory[category];
-      peopleInCategory.sort((a,b) => {
+      peopleInCategory.sort((a, b) => {
         if (sortOrder === 'custom_fuchigami') {
           if (a.name === '渕上竜也') return -1; if (b.name === '渕上竜也') return 1;
         }
@@ -397,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
           default: return new Date(a.birthdate) - new Date(b.birthdate);
         }
       });
-      peopleInCategory.forEach(person => gridContainer.appendChild(createPersonCard(person)));
+      peopleInCategory.forEach(p => gridContainer.appendChild(createPersonCard(p)));
       categoryContainer.appendChild(gridContainer);
       personListContainer.appendChild(categoryContainer);
     });
@@ -419,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
       personAgeListContainer.innerHTML = `<p class="text-slate-500 col-span-full text-center py-8">該当する人物が見つかりません。</p>`;
       return;
     }
-    filteredPeople.forEach(person => personAgeListContainer.appendChild(createAgeViewCard(person)));
+    filteredPeople.forEach(p => personAgeListContainer.appendChild(createAgeViewCard(p)));
   }
 
   function renderFamilyTree() {
@@ -428,8 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
     treeContainer.innerHTML = '';
 
     if (personScope.length === 0) {
-      const message = selectedCategory !== 'all' && people.length > 0 ? 'このカテゴリーに属する人物がいません。' : '人物データがありません。一覧画面から追加してください。';
-      treeContainer.innerHTML = `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" fill="currentColor">${message}</text>`;
+      const msg = selectedCategory !== 'all' && people.length > 0 ? 'このカテゴリーに属する人物がいません。' : '人物データがありません。一覧画面から追加してください。';
+      treeContainer.innerHTML = `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" fill="currentColor">${msg}</text>`;
       treeSvg.removeAttribute('viewBox');
       return;
     }
@@ -446,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const shiftX = currentXOffset - bounds.minX;
 
         nodes.forEach(node => { node.x += shiftX; allNodes.push(node); });
-
         links.forEach(link => {
           const commands = link.d.split(/(?=[MVH])/);
           const newCommands = commands.map(cmd => {
@@ -456,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (command === 'M' || command === 'H' || command === 'V') {
               if (command !== 'V') values[0] += shiftX;
             } else {
-              for (let i=0; i<values.length; i+=2) values[i] += shiftX;
+              for (let i = 0; i < values.length; i += 2) values[i] += shiftX;
             }
             return `${command} ${values.join(' ')}`;
           });
@@ -472,7 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
           overallBounds.maxY = Math.max(overallBounds.maxY, bounds.maxY);
           overallBounds.maxX = bounds.maxX + shiftX;
         }
-
         currentXOffset = overallBounds.maxX + nodeSize.width + nodeGap.x * 2;
       }
     });
@@ -480,7 +472,9 @@ document.addEventListener('DOMContentLoaded', () => {
     allLinks.forEach(link => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', link.d);
-      path.setAttribute('fill', 'none'); path.setAttribute('stroke', 'rgb(156 163 175)'); path.setAttribute('stroke-width', '2');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'rgb(156 163 175)');
+      path.setAttribute('stroke-width', '2');
       treeContainer.appendChild(path);
     });
 
@@ -527,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- 6. UIイベントリスナー ---
+  // --- 6. UIイベント ---
   function setupEventListeners() {
     document.getElementById('view-toggle').addEventListener('click', (e) => {
       if (e.target.tagName === 'BUTTON') switchView(e.target.dataset.view);
@@ -578,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
     treeSvg.addEventListener('wheel', (e) => { e.preventDefault(); const zoomFactor = 1.1; const { clientX, clientY } = e; const vb = treeSvg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,treeSvg.clientWidth,treeSvg.clientHeight]; let currentViewBox = {x: vb[0], y: vb[1], w: vb[2], h: vb[3]}; const pt = treeSvg.createSVGPoint(); pt.x = clientX; pt.y = clientY; const point = pt.matrixTransform(treeSvg.getScreenCTM().inverse()); const newW = e.deltaY > 0 ? currentViewBox.w * zoomFactor : currentViewBox.w / zoomFactor; const newH = e.deltaY > 0 ? currentViewBox.h * zoomFactor : currentViewBox.h / zoomFactor; currentViewBox.x += (point.x-currentViewBox.x)*(1-newW/currentViewBox.w); currentViewBox.y += (point.y-currentViewBox.y)*(1-newH/currentViewBox.h); currentViewBox.w = newW; currentViewBox.h = newH; treeSvg.setAttribute('viewBox', `${currentViewBox.x} ${currentViewBox.y} ${currentViewBox.w} ${currentViewBox.h}`); });
   }
 
-  // --- 7. モーダルとフォームの処理 ---
+  // --- 7. モーダル/フォーム ---
   async function handleFormSubmit(e) {
     e.preventDefault();
     const saveButton = document.getElementById('save-person-button');
@@ -622,27 +616,24 @@ document.addEventListener('DOMContentLoaded', () => {
       await savePerson(personData);
 
       if (newPhotoUrl && oldPhotoUrl && oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/') && newPhotoUrl !== oldPhotoUrl) {
-        try { await storage.refFromURL(oldPhotoUrl).delete(); } catch (error) { console.warn("古い写真の削除に失敗:", error); }
+        try { await storage.refFromURL(oldPhotoUrl).delete(); } catch (err) { console.warn('古い写真の削除に失敗:', err); }
       }
 
       if (personData.spouseId) {
         const spouse = findPersonById(personData.spouseId);
         if (spouse && (spouse.spouseId !== personData.id || spouse.weddingDate !== personData.weddingDate)) {
           const updatedSpouse = { ...spouse, spouseId: personData.id, id: spouse.id };
-          if(personData.weddingDate) updatedSpouse.weddingDate = personData.weddingDate;
+          if (personData.weddingDate) updatedSpouse.weddingDate = personData.weddingDate;
           await savePerson(updatedSpouse);
         }
       }
 
       closePersonModal();
-
     } catch (error) {
-      console.error("保存に失敗しました:", error);
-      alert(error.message || "保存に失敗しました。");
-
+      console.error('保存に失敗:', error);
+      alert(error.message || '保存に失敗しました。');
       if (newPhotoUrl) {
-        try { await storage.refFromURL(newPhotoUrl).delete(); }
-        catch (rollbackError) { console.error("ロールバック失敗:", rollbackError); }
+        try { await storage.refFromURL(newPhotoUrl).delete(); } catch (rbErr) { console.error('ロールバック失敗:', rbErr); }
       }
     } finally {
       saveButton.disabled = false;
@@ -658,16 +649,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const photoUrl = person?.photoUrl;
     if (photoUrl && confirm('この写真を削除しますか？')) {
       try {
-        if (photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
-          await storage.refFromURL(photoUrl).delete();
-        }
-        await savePerson({ id: id, photoUrl: null });
+        if (photoUrl.startsWith('https://firebasestorage.googleapis.com/')) await storage.refFromURL(photoUrl).delete();
+        await savePerson({ id, photoUrl: null });
         document.getElementById('photoUrl').value = '';
         document.getElementById('photoPreview').src = generateAvatar(person);
         document.getElementById('delete-photo-btn').classList.add('hidden');
-      } catch(error) {
-        console.error("写真の削除に失敗しました:", error);
-        alert("写真の削除に失敗しました。");
+      } catch (err) {
+        console.error('写真の削除に失敗:', err);
+        alert('写真の削除に失敗しました。');
       }
     }
   }
@@ -679,9 +668,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const personToDelete = findPersonById(id);
       if (personToDelete && personToDelete.photoUrl && personToDelete.photoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
-        try { await storage.refFromURL(personToDelete.photoUrl).delete(); } catch (error) { console.warn('写真の削除に失敗:', error); }
+        try { await storage.refFromURL(personToDelete.photoUrl).delete(); } catch (err) { console.warn('写真の削除に失敗:', err); }
       }
-
       await deletePerson(id);
 
       const updates = people.filter(p => p.fatherId === id || p.motherId === id || p.spouseId === id)
@@ -692,12 +680,11 @@ document.addEventListener('DOMContentLoaded', () => {
           if (p.spouseId === id) updated.spouseId = null;
           return savePerson(updated);
         });
-
       await Promise.all(updates);
       closePersonModal();
-    } catch(error) {
-      console.error("削除に失敗しました:", error);
-      alert("削除に失敗しました。");
+    } catch (err) {
+      console.error('削除に失敗:', err);
+      alert('削除に失敗しました。');
     }
   }
 
@@ -717,16 +704,10 @@ document.addEventListener('DOMContentLoaded', () => {
   async function handleDeleteCategory(e) {
     if (e.target.tagName !== 'BUTTON') return;
     const categoryToDelete = e.target.dataset.category;
-
-    if (categoryToDelete && categoryToDelete !== '（未分類）' && confirm(`「${categoryToDelete}」を削除しますか？このカテゴリーの人物は「（未分類）」に移動します。`)){
+    if (categoryToDelete && categoryToDelete !== '（未分類）' && confirm(`「${categoryToDelete}」を削除しますか？このカテゴリーの人物は「（未分類）」に移動します。`)) {
       if (categoryFilter.value === categoryToDelete) categoryFilter.value = 'all';
-
-      const updates = people
-        .filter(p => p.familyCategory === categoryToDelete)
-        .map(p => savePerson({ ...p, id: p.id, familyCategory: '（未分類）' }));
-
+      const updates = people.filter(p => p.familyCategory === categoryToDelete).map(p => savePerson({ ...p, id: p.id, familyCategory: '（未分類）' }));
       await Promise.all(updates);
-
       familyCategories = familyCategories.filter(c => c !== categoryToDelete);
       await saveCategories();
       renderCategoryManager();
@@ -746,23 +727,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- 8. ヘルパー ---
   function findPersonById(id) { return people.find(p => p.id === id); }
-
   function switchView(view) {
     document.querySelectorAll('#view-toggle button').forEach(btn => {
       btn.classList.toggle('bg-slate-200', btn.dataset.view === view);
       btn.classList.toggle('dark:bg-slate-700', btn.dataset.view === view);
     });
-
     treeViewEl.classList.toggle('hidden', view !== 'tree');
     ageViewEl.classList.toggle('hidden', view !== 'age');
     listViewEl.classList.toggle('hidden', view !== 'list');
-
     const isTree = view === 'tree';
     searchBox.classList.toggle('hidden', isTree);
     categoryFilterContainer.classList.toggle('hidden', !isTree);
     categoryFilterContainer.classList.toggle('flex', isTree);
     document.getElementById('sort-order').style.display = (view === 'list') ? 'block' : 'none';
-
     render();
   }
 
@@ -770,11 +747,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex flex-col cursor-pointer ${person.isDeceased ? 'deceased-card' : ''}`;
     card.dataset.id = person.id;
-
     const ageDisplay = getAgeDisplay(person, false);
     const avatarSrc = person.photoUrl || generateAvatar(person);
     const commentHTML = person.comment ? `<p class="text-sm font-semibold accent-text truncate">“${person.comment}”</p>` : '';
-
     card.innerHTML = `
       <div class="flex items-start space-x-3">
         <img src="${avatarSrc}" class="w-16 h-16 rounded-full object-cover" alt="${person.name}の写真">
@@ -799,10 +774,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = `p-4 rounded-lg soft-shadow bg-white dark:bg-slate-800 flex items-center space-x-4 cursor-pointer ${person.isDeceased ? 'deceased-card' : ''}`;
     card.dataset.id = person.id;
-
     const ageDisplay = getAgeDisplay(person, true);
     const avatarSrc = person.photoUrl || generateAvatar(person);
-
     card.innerHTML = `
       <img src="${avatarSrc}" class="w-12 h-12 rounded-full object-cover" alt="${person.name}の写真">
       <div class="flex-1 overflow-hidden">
@@ -859,7 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
       createDateSelectors('deathdate-container-selectors', null, false);
       createDateSelectors('weddingDate-container', null, false);
       document.getElementById('delete-person-button').classList.add('hidden');
-      document.getElementById('photoPreview').src = generateAvatar({name: '?'});
+      document.getElementById('photoPreview').src = generateAvatar({ name: '?' });
     }
     personModal.classList.add('flex');
     personModal.classList.remove('hidden');
@@ -901,10 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function formatDateJP(isoDate) {
     if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return '';
     const date = new Date(isoDate + 'T00:00:00');
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${year}年${month}月${day}日`;
+    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
   }
 
   function generateAvatar(person) {
@@ -921,13 +891,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function createDateSelectors(containerId, initialDate, isRequired = false) {
     const container = document.getElementById(containerId); container.innerHTML = '';
     const yearSelect = document.createElement('select'); const monthSelect = document.createElement('select'); const daySelect = document.createElement('select');
-    if(isRequired) [yearSelect, monthSelect, daySelect].forEach(s => s.required = true);
-
+    if (isRequired) [yearSelect, monthSelect, daySelect].forEach(s => s.required = true);
     yearSelect.innerHTML = `<option value="">年</option>`; monthSelect.innerHTML = `<option value="">月</option>`; daySelect.innerHTML = `<option value="">日</option>`;
     const currentYear = new Date().getFullYear();
     for (let y = currentYear + 5; y >= 1900; y--) yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
     for (let m = 1; m <= 12; m++) monthSelect.innerHTML += `<option value="${m}">${m}</option>`;
-
     container.append(yearSelect, monthSelect, daySelect);
 
     const updateDays = () => {
@@ -939,7 +907,6 @@ document.addEventListener('DOMContentLoaded', () => {
         daySelect.value = currentDay;
       }
     };
-
     yearSelect.addEventListener('change', updateDays); monthSelect.addEventListener('change', updateDays);
 
     if (initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate)) {
@@ -958,7 +925,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function populateSelectOptions(currentPersonId = null) {
     const selects = ['fatherId', 'motherId', 'spouseId'];
     const sortedPeople = [...people].sort((a, b) => (a.kana || a.name).localeCompare(b.kana || b.name, 'ja'));
-
     selects.forEach(id => {
       const select = document.getElementById(id); if (!select) return;
       const currentValue = select.value;
@@ -988,7 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const option = document.createElement('option'); option.value = cat; option.textContent = cat;
       categoryFilter.appendChild(option);
     });
-    const uncategorizedOption = document.createElement('option'); uncategorizedOption.value = '（未分類）'; uncategorizedOption.textContent = '（未分類）';
+    const uncategorizedOption = document.createElement('option');
+    uncategorizedOption.value = '（未分類）'; uncategorizedOption.textContent = '（未分類）';
     categoryFilter.appendChild(uncategorizedOption);
     categoryFilter.value = currentValue;
   }
@@ -1010,22 +977,21 @@ document.addEventListener('DOMContentLoaded', () => {
       visited.add(person.id);
       if (!generationLevels[level]) generationLevels[level] = [];
       if (!generationLevels[level].includes(person.id)) generationLevels[level].push(person.id);
-      if(person.fatherId) traverse(findPerson(person.fatherId), level - 1);
-      if(person.motherId) traverse(findPerson(person.motherId), level - 1);
-      if(person.spouseId) traverse(findPerson(person.spouseId), level);
+      if (person.fatherId) traverse(findPerson(person.fatherId), level - 1);
+      if (person.motherId) traverse(findPerson(person.motherId), level - 1);
+      if (person.spouseId) traverse(findPerson(person.spouseId), level);
       getChildren(person.id).forEach(child => traverse(child, level + 1));
     }
-
     traverse(rootPerson, 0);
 
     const validLevels = Object.keys(generationLevels).map(Number).filter(isFinite);
-    if (validLevels.length === 0) return { nodes:[], links:[], bounds, visited };
+    if (validLevels.length === 0) return { nodes: [], links: [], bounds, visited };
     const minLevel = Math.min(...validLevels);
 
-    Object.keys(generationLevels).sort((a,b) => a-b).forEach(level => {
+    Object.keys(generationLevels).sort((a, b) => a - b).forEach(level => {
       const y = (level - minLevel) * (nodeSize.height + nodeGap.y);
       const levelNodes = generationLevels[level];
-      let x = - (levelNodes.length * (nodeSize.width + nodeGap.x) - nodeGap.x) / 2;
+      let x = -(levelNodes.length * (nodeSize.width + nodeGap.x) - nodeGap.x) / 2;
       levelNodes.forEach(id => {
         if (!positions[id]) {
           const person = findPerson(id);
@@ -1045,10 +1011,10 @@ document.addEventListener('DOMContentLoaded', () => {
       bounds.minX = Math.min(bounds.minX, pos.x); bounds.maxX = Math.max(bounds.maxX, pos.x);
       bounds.minY = Math.min(bounds.minY, pos.y); bounds.maxY = Math.max(bounds.maxY, pos.y);
 
-      if(person.spouseId && positions[person.spouseId] && person.id < person.spouseId) {
+      if (person.spouseId && positions[person.spouseId] && person.id < person.spouseId) {
         const spousePos = positions[person.spouseId];
         if (Math.abs(pos.y - spousePos.y) < nodeGap.y / 2) {
-          links.push({d: `M ${pos.x + nodeSize.width} ${pos.y + nodeSize.height / 2} H ${spousePos.x}`});
+          links.push({ d: `M ${pos.x + nodeSize.width} ${pos.y + nodeSize.height / 2} H ${spousePos.x}` });
         }
       }
 
@@ -1071,8 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const minChildX = Math.min(...childrenXPoints);
             const maxChildX = Math.max(...childrenXPoints);
 
-            if(children.length > 1) links.push({ d: `M ${minChildX} ${midY} H ${maxChildX}`});
-
+            if (children.length > 1) links.push({ d: `M ${minChildX} ${midY} H ${maxChildX}` });
             childrenPos.forEach((childPos, i) => { links.push({ d: `M ${childrenXPoints[i]} ${midY} V ${childPos.y}` }); });
 
             drawnLinks.add(coupleKey);
@@ -1083,6 +1048,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return { nodes, links, bounds, visited };
   }
 
+  // --- 実行 ---
+  init();
 });
 </script>
 </body>
